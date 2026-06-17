@@ -1,0 +1,29 @@
+<main class="page">
+  <img class="banner" src={~p"/images/banner.png"} alt="Fenton brand banner" />
+
+  <section class="news">
+    <h1 class="news__heading">Latest News</h1>
+
+    <article class="featured">
+      <div class="featured__media">
+        <img src={@featured.image} alt={@featured.title} />
+      </div>
+      <div class="featured__body">
+        <h2 class="featured__title">{@featured.title}</h2>
+        <p class="featured__text">{@featured.body}</p>
+        <a class="readmore" href="#">Read more</a>
+      </div>
+    </article>
+
+    <div class="cards">
+      <article :for={article <- @articles} class="card">
+        <div class="card__media">
+          <img src={article.image} alt={article.title} />
+        </div>
+        <h3 class="card__title">{article.title}</h3>
+        <p class="card__excerpt">{article.excerpt}</p>
+        <a class="readmore" href="#">Read more</a>
+      </article>
+    </div>
+  </section>
+</main>
