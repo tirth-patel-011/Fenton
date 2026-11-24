@@ -211,7 +211,7 @@
     const act = activeOf[page] || page;
     return `<div class="app">
       <aside class="sb">
-        <div class="sb-brand">${window.UI.logo("program", "sb-logo")}<div class="sb-name"><b>${esc(C.program.name)}</b><span>${esc(C.portal.name)}</span></div></div>
+        <div class="sb-brand"><div class="sb-plate">${window.UI.logo("program", "sb-logo")}</div><div class="sb-name"><b>${esc(C.program.name)}</b><span>${esc(C.portal.name)}</span></div></div>
         <nav class="sb-nav">${nav.map(([k, i, l, n]) => `<button class="${act === k ? "on" : ""}${hl("nav-" + k)}" data-a="go" data-arg="${k}">${ic(i, 19)}<span>${l}</span>${n ? `<em>${n}</em>` : ""}</button>`).join("")}</nav>
         <div class="sb-foot"><span>Powered by</span>${window.UI.logo("radonsketch", "sb-rs")}<small>${esc(C.agency.short)} · ${esc(C.program.lirma)} programme</small></div>
       </aside>

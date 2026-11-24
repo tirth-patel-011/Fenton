@@ -55,8 +55,8 @@ window.CONFIG = {
   // Logo files in colorado-prototype/assets/. Set each to its file name once the logo is copied in,
   // e.g. "colorado-radon-program-logo.png". null = show a labelled placeholder box (no file available yet).
   logos: {
-    program: null,      // → "colorado-radon-program-logo.<ext>"
-    radonsketch: null,  // → "radonsketch-logo.<ext>"
+    program: "colorado-radon-program-logo.svg", // supplied Colorado logo, used as provided
+    radonsketch: null,  // → "radonsketch-logo.<ext>" once supplied; until then the name is shown as text
   },
 
   // Portal colours (Colorado state palette — see README; edit freely). Applied as CSS variables.

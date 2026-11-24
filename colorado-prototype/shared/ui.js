@@ -59,8 +59,10 @@
   const logo = (kind, cls = "") => {
     const file = C.logos[kind], label = kind === "program" ? "Colorado Radon Program logo" : "RadonSketch logo";
     const base = window.ASSET_BASE || "../assets/";
+    if (!file && kind === "radonsketch") return `<span class="logo ${cls} logo-radonsketch wordmark" role="img" aria-label="RadonSketch">RadonSketch</span>`;
     if (!file) return `<span class="logo ${cls} logo-${kind} missing" role="img" aria-label="${label}"><span class="logo-ph">${label}</span></span>`;
-    return `<span class="logo ${cls} logo-${kind}"><img src="${base}${file}" alt="${label}" onerror="this.parentNode.classList.add('missing');this.remove()"><span class="logo-ph">${label}</span></span>`;
+    const src = /^(data:|https?:)/.test(file) ? file : base + file; // single-file builds embed the logo as a data URI
+    return `<span class="logo ${cls} logo-${kind}"><img src="${src}" alt="${label}" onerror="this.parentNode.classList.add('missing');this.remove()"><span class="logo-ph">${label}</span></span>`;
   };
 
   const badge = (key, extra = "") => { const s = STATUS[key]; return `<span class="st-badge ${extra}" style="--c:${s.color}"><i></i>${s.label}</span>`; };
