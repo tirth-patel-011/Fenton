@@ -16,7 +16,7 @@
     const r = latestResult(j);
     if (r) return `<span class="comp ${r.fail ? "bad" : r.warn ? "warn" : "ok"}">${r.passed}/${r.total}</span>`;
     const l = live(j);
-    if (l) return `<span class="comp live ${l.warn || l.fail ? "warn" : "ok"}" title="Live from RadonSketch">${ic("sync", 12)} ${l.pass}/${l.n - l.pending} live</span>`;
+    if (l) return `<span class="comp is-live ${l.warn || l.fail ? "warn" : "ok"}" title="Live from RadonSketch">${ic("sync", 12)} ${l.pass}/${l.n - l.pending} live</span>`;
     return `<span class="muted">—</span>`;
   };
   const ctrName = (j) => (j.ctr ? Q.ctr(S(), j.ctr).name : `<span class="muted">Unassigned</span>`);
@@ -137,7 +137,7 @@
       <div class="kpis">${kpis.map(([k, i, l, v, sub, arg]) => `<button class="kpi k-${k}${hl("kpi-" + k)}" data-a="dashGo" data-arg="${arg}"><span class="kpi-ic">${ic(i, 18)}</span><span class="kpi-l">${l}</span><b>${v}</b><small>${sub}</small></button>`).join("")}</div>
       <div class="grid g-21">
         ${card("Needs attention", `<div class="attn">${att.map((x) => `<button class="attn-i t-${x.tone}${x.n ? "" : " zero"}${hl("attn-" + x.key)}" data-a="${x.a}" data-arg="${x.arg}"><span class="attn-ic">${ic(x.icon, 17)}</span><span class="attn-t"><b>${x.t}</b><small>${x.n ? esc(x.d) : "Nothing outstanding"}</small></span><em>${x.n}</em>${ic("chev-right", 16)}</button>`).join("")}</div>`)}
-        ${card(`Today's schedule <small>${Dt.wdm(now)}</small>`, todays.length ? `<div class="today">${todays.map((j) => `<button class="td-i" data-a="openJob" data-arg="${j.id}"><span class="td-t">${Dt.time(j.sched)}</span><span class="td-b"><b>${hhOf(j).name}</b><small>${hhOf(j).city} · ${ctrOf(j).name}</small></span>${badge(j.status)}</button>`).join("")}</div>` : `<div class="empty">No installations scheduled today.</div>`, `<button class="link" data-a="dashGo" data-arg="jobs|special=upcoming">Next 7 days</button>`)}
+        ${card(`Today's schedule <small>${Dt.wdm(now)}</small>`, todays.length ? `<div class="today-list">${todays.map((j) => `<button class="td-i" data-a="openJob" data-arg="${j.id}"><span class="td-t">${Dt.time(j.sched)}</span><span class="td-b"><b>${hhOf(j).name}</b><small>${hhOf(j).city} · ${ctrOf(j).name}</small></span>${badge(j.status)}</button>`).join("")}</div>` : `<div class="empty">No installations scheduled today.</div>`, `<button class="link" data-a="dashGo" data-arg="jobs|special=upcoming">Next 7 days</button>`)}
       </div>
       <div class="grid g-12">
         ${card(`Contractors with low compliance <small>below ${C.thresholds.good}%</small>`, low.length ? `<table class="tbl mini"><thead><tr><th>Contractor</th><th>Score</th><th>Open corrections</th><th></th></tr></thead><tbody>${low.map((c) => `<tr class="clickable" data-a="openContractor" data-arg="${c.id}"><td><b>${c.name}</b><small class="sub">${c.base.city} · ${statusPill(c.status)}</small></td><td>${scoreBadge(scoreOf(c))}</td><td>${Q.jobsOf(s, c.id).filter((j) => j.status === "corrections").length}</td><td><button class="link" data-a="openContractor" data-arg="${c.id}">View profile ${ic("arrow", 13)}</button></td></tr>`).join("")}</tbody></table>` : `<div class="empty">All contractors are at or above ${C.thresholds.good}%.</div>`)}
@@ -482,7 +482,7 @@
       cells.push(`<div class="cal-c ${ds === now ? "today" : ""}"><span class="cal-d">${d}</span>${js.map((j) => `<button class="cal-job${hl("cal-" + j.id)}" style="--c:${STATUS[j.status].color}" data-a="openJob" data-arg="${j.id}"><b>${Dt.time(j.sched)}</b><span>${hhOf(j).surname}</span><small>${STATUS[j.status].label}</small></button>`).join("")}</div>`);
     }
     while (cells.length % 7) cells.push(`<div class="cal-c out"></div>`);
-    return `<section class="card cal-card"><header class="card-h"><div class="cal-nav"><button data-a="calNav" data-arg="${key}|-1" aria-label="Previous month">${ic("chev-left", 16)}</button><h3>${Dt.month(cal.m)} ${cal.y}</h3><button data-a="calNav" data-arg="${key}|1" aria-label="Next month">${ic("chev-right", 16)}</button><button class="btn ghost xs" data-a="calNav" data-arg="${key}|0">Today</button></div>${legend()}</header>
+    return `<section class="card cal-card"><header class="card-h"><div class="cal-nav"><button data-a="calNav" data-arg="${key}|-1" aria-label="Previous month">${ic("chev-left", 16)}</button><h3>${Dt.month(cal.m)} ${cal.y}</h3><button data-a="calNav" data-arg="${key}|1" aria-label="Next month">${ic("chev-right", 16)}</button><button class="btn ghost sm" data-a="calNav" data-arg="${key}|0">Today</button></div>${legend()}</header>
       <div class="cal"><div class="cal-h">${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => `<span>${d}</span>`).join("")}</div><div class="cal-g">${cells.join("")}</div></div></section>`;
   }
   const notesBlock = (notes, kind, id) => `<div class="notes">${notes.length ? notes.slice().sort((a, b) => b.at.localeCompare(a.at)).map((n) => `<div class="note"><span class="av sm">${n.by.split(" ").map((w) => w[0]).join("")}</span><div><div class="note-h"><b>${esc(n.by)}</b><span>${Dt.dt(n.at)}</span></div><p>${esc(n.text)}</p></div></div>`).join("") : `<div class="empty">No notes yet.</div>`}
@@ -555,7 +555,7 @@
       ${st === "failed" ? `<div class="gk-err">${ic("alert", 15)}<span>${esc(G.reason)}</span></div>` : ""}
       <div class="gk-grid">
         <div>
-          <label class="field"><span>${key ? "Replace API key" : "API key"}</span><span class="gk-in"><input type="${U().gkShow ? "text" : "password"}" placeholder="Paste your Google Maps Platform API key (starts with AIza…)" value="${esc(U().gkeyDraft || "")}" data-in="field" data-path="gkeyDraft" data-fk="gkey" autocomplete="off" spellcheck="false"><button class="btn ghost sm" data-a="gShow">${U().gkShow ? "Hide" : "Show"}</button></span></label>
+          <label class="field"><span>${key ? "Replace API key" : "API key"}</span><span class="gk-in"><input type="${U().gkShow ? "text" : "password"}" placeholder="Paste your Google Maps Platform API key (starts with AIza…)" value="${esc(U().gkeyDraft || "")}" data-in="field" data-path="gkeyDraft" data-fk="gkey" autocomplete="off" spellcheck="false"><button class="btn ghost" data-a="gShow">${U().gkShow ? "Hide" : "Show"}</button></span></label>
           <div class="btns"><button class="btn primary" data-a="gSave">${ic("check", 15)} Save &amp; connect</button>${key && G.keySource() === "browser" ? `<button class="btn ghost" data-a="gRemove">Remove key</button>` : ""}</div>
           <p class="gk-note">${ic("lock", 13)} The key is saved only in this browser on this computer (local storage). It isn't written into the prototype files, so files you share don't contain it.</p>
           <b class="gk-h">What it turns on</b>
@@ -666,7 +666,7 @@
     if (m.success) {
       const c = Q.ctr(s, m.ctr);
       return `<header class="m-head"><div><h2>Job assigned</h2></div><button class="x" data-a="closeModal" aria-label="Close">${ic("x", 20)}</button></header>
-        <div class="m-body success"><span class="ok-c">${ic("check", 34)}</span><h3>Job ${m.success} assigned to ${dot(c.name)}</h3><p>They've been notified, and the project has been created in their RadonSketch app.</p>
+        <div class="m-body m-success"><span class="ok-c">${ic("check", 34)}</span><h3>Job ${m.success} assigned to ${dot(c.name)}</h3><p>They've been notified, and the project has been created in their RadonSketch app.</p>
           <div class="succ-sum">${dl([["Household", Q.hh(s, m.hh).name], ["Target date", Dt.long(m.date)], ["Priority", m.priority], ["Professional", Q.job(s, m.success).professional]])}</div></div>
         <footer class="m-foot"><button class="btn ghost" data-a="assignAnother">Assign another</button><button class="btn ghost" data-a="closeModal">Done</button><button class="btn primary" data-a="openJob" data-arg="${m.success}">View job</button></footer>`;
     }
@@ -679,8 +679,13 @@
       const list = s.households.map((h) => ({ h, j: Q.jobOfHh(s, h.id) })).filter(({ h }) => !q || [h.name, h.id, h.city, h.county].join(" ").toLowerCase().includes(q))
         .sort((a, b) => (a.j.status === "unassigned" ? 0 : 1) - (b.j.status === "unassigned" ? 0 : 1) || b.h.approved.localeCompare(a.h.approved));
       body = `<div class="search wide">${ic("search", 16)}<input type="search" placeholder="Search household, ID, city or county…" value="${esc(m.q || "")}" data-in="field-r" data-path="modal.q" data-fk="as-q"></div>
-        <p class="hint">Approved households waiting for a contractor are listed first.</p>
-        <div class="opt-list">${list.map(({ h, j }) => { const dis = j.status !== "unassigned"; return `<button class="opt-c ${m.hh === h.id ? "on" : ""}${hl("as-hh-" + h.id)}" data-a="asHh" data-arg="${h.id}" ${dis ? "disabled" : ""}><i class="radio ${m.hh === h.id ? "on" : ""}"></i><span class="oc-m"><b>${h.name}</b><small>${h.id} · ${h.city}, ${h.county} County · approved ${Dt.short(h.approved)}</small></span><span class="oc-r">${h.pre.toFixed(1)} <small>pCi/L</small></span>${dis ? `<span class="oc-tag">${STATUS[j.status].label}</span>` : `<span class="oc-tag ok">Awaiting assignment</span>`}</button>`; }).join("")}</div>`;
+        ${(() => {
+          const row = ({ h, j }) => { const dis = j.status !== "unassigned"; return `<button class="opt-c ${m.hh === h.id ? "on" : ""}${hl("as-hh-" + h.id)}" data-a="asHh" data-arg="${h.id}" ${dis ? "disabled" : ""}><i class="radio ${m.hh === h.id ? "on" : ""}"></i><span class="oc-m"><b>${h.name}</b><small>${h.id} · ${h.city}, ${h.county} County · approved ${Dt.short(h.approved)}</small></span><span class="oc-r">${h.pre.toFixed(1)} <small>pCi/L</small></span>${dis ? `<span class="oc-tag">${STATUS[j.status].label}</span>` : `<span class="oc-tag ok">Awaiting assignment</span>`}</button>`; };
+          const open = list.filter((x) => x.j.status === "unassigned"), taken = list.filter((x) => x.j.status !== "unassigned");
+          return `<div class="opt-group">Awaiting assignment <em>${open.length}</em></div>
+            <div class="opt-list">${open.length ? open.map(row).join("") : `<div class="empty sm">No unassigned households match your search.</div>`}</div>
+            ${taken.length ? `<div class="opt-group muted-g">Already assigned <em>${taken.length}</em><small>To change the contractor, open the job and choose Reassign.</small></div><div class="opt-list">${taken.map(row).join("")}</div>` : ""}`;
+        })()}`;
       next = `<button class="btn primary" data-a="asNext" ${m.hh ? "" : "disabled"}>Next: choose contractor ${ic("arrow", 15)}</button>`;
     } else if (m.step === 2) {
       const h = Q.hh(s, m.hh);

@@ -58,9 +58,9 @@
     for (let i = 1; i <= pages; i++) pg.push(`<button class="${i === t.page ? "on" : ""}" data-a="tblPage" data-arg="${key}|${i}">${i}</button>`);
     return `<div class="tbl-card">
       ${def.noToolbar ? "" : `<div class="tbl-tools">
-        <div class="search">${ic("search", 16)}<input type="search" placeholder="${def.placeholder || "Search"}" value="${esc(t.q)}" data-in="tblQ" data-key="${key}" data-fk="${key}-q"></div>
+        <label class="flt flt-search"><span>Search</span><div class="search">${ic("search", 16)}<input type="search" placeholder="${def.placeholder || "Search"}" value="${esc(t.q)}" data-in="tblQ" data-key="${key}" data-fk="${key}-q"></div></label>
         ${(def.filters || []).filter((f) => !f.hidden).map(sel).join("")}${range}
-        ${(def.filters || []).length || def.dateRange ? `<button class="btn ghost sm" data-a="tblReset" data-arg="${key}">Reset</button>` : ""}
+        ${(def.filters || []).length || def.dateRange ? `<button class="btn ghost" data-a="tblReset" data-arg="${key}">Reset</button>` : ""}
         <div class="tbl-extra">${def.extra || ""}</div></div>${sp}`}
       <div class="tbl-wrap"><table class="tbl"><thead><tr>${def.cols.map((c) => `<th class="${c.cls || ""}${c.sort ? " sortable" : ""}" ${c.sort ? `data-a="tblSort" data-arg="${key}|${c.key}"` : ""}>${c.label}${c.sort ? `<span class="srt ${t.sort === c.key ? t.dir : ""}">${ic(t.sort === c.key && t.dir === "desc" ? "chev-down" : "chev-up", 12)}</span>` : ""}</th>`).join("")}</tr></thead>
       <tbody>${shown.length ? shown.map((r) => `<tr ${def.rowAction ? `data-a="${def.rowAction}" data-arg="${esc(def.rowArg(r))}" class="clickable${def.rowHl && def.rowHl(r) ? " hl" : ""}"` : ""}>${def.cols.map((c) => `<td class="${c.cls || ""}">${c.render(r)}</td>`).join("")}</tr>`).join("")

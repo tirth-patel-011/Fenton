@@ -190,7 +190,7 @@ td .sync-badge.sm { display: flex; width: max-content; }
 .attn-i em { font-style: normal; font-weight: 800; font-size: 16px; min-width: 32px; text-align: center; padding: 2px 8px; border-radius: 8px; background: #EEF2F7; }
 .t-red em { background: var(--bad-soft); color: var(--bad); } .t-amber em { background: var(--warn-soft); color: var(--warn); } .t-blue em { background: var(--co-blue-soft); color: var(--co-blue); }
 .attn-i.zero { opacity: .55; } .attn-i.zero em { background: #EEF2F7; color: var(--muted); }
-.today { display: grid; gap: 6px; }
+.today-list { display: grid; gap: 6px; }
 .td-i { display: flex; align-items: center; gap: 12px; padding: 9px 10px; border-radius: 9px; border: 1px solid var(--line-2); }
 .td-i:hover { background: #F6F8FB; }
 .td-t { width: 64px; font-weight: 700; font-size: 13px; color: var(--co-blue); }
@@ -460,9 +460,9 @@ button.hb:hover .hb-l { color: var(--co-blue); }
 .oc-stats .in { color: var(--ok); } .oc-stats .out { color: var(--muted); }
 .rec-tag { display: inline-flex; align-items: center; gap: 3px; font-style: normal; font-size: 11px; font-weight: 700; background: var(--ok); color: #fff; padding: 2px 8px; border-radius: 999px; }
 .as-hh { display: flex; align-items: center; gap: 6px; font-size: 13px; padding: 9px 12px; background: var(--co-blue-soft); border-radius: 9px; margin-bottom: 10px; color: var(--co-blue-dark); }
-.success { display: grid; justify-items: center; text-align: center; gap: 10px; padding: 30px 40px; }
+.m-success { display: grid; justify-items: center; text-align: center; gap: 10px; padding: 30px 40px; }
 .ok-c { width: 72px; height: 72px; border-radius: 50%; background: var(--ok); color: #fff; display: grid; place-items: center; box-shadow: 0 0 0 10px var(--ok-soft); animation: rise .3s var(--ease); }
-.success h3 { font-size: 19px; max-width: 560px; } .success p { color: var(--ink-2); max-width: 520px; }
+.m-success h3 { font-size: 19px; max-width: 560px; } .m-success p { color: var(--ink-2); max-width: 520px; }
 .succ-sum { width: 100%; max-width: 460px; text-align: left; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 14px; margin-top: 6px; }
 .corr-checks { display: grid; gap: 6px; margin-bottom: 14px; }
 .cc { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 9px; background: #fff; font-size: 13.5px; cursor: pointer; }
@@ -758,6 +758,83 @@ button.hb:hover .hb-l { color: var(--co-blue); }
 .map-empty { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 650; display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; box-shadow: 0 16px 36px -14px rgba(16, 24, 40, .45); color: var(--muted); animation: rise .2s var(--ease); }
 .map-empty b { display: block; color: var(--ink); font-size: 14px; } .map-empty small { font-size: 12.5px; }
 .map-search ~ .county-strip { left: 12px; top: 98px; transform: none; }
+
+/* ===========================================================================
+   Consistency layer — one set of sizes used by every component
+   =========================================================================== */
+:root { --ctl: 38px; --ctl-sm: 32px; --ctl-xs: 28px; --pill: 22px; --ctl-r: 8px; --ctl-border: #CFD7E2; }
+
+/* Pop-ups: always fit the window; header, tabs and footer stay put, only the body scrolls */
+.modal-back { display: flex; align-items: center; justify-content: center; padding: 24px; overflow: hidden; }
+.modal { max-height: 100%; min-height: 0; overflow: hidden; }
+.m-job { height: min(820px, 100%); }
+.m-head, .modal .tabs, .steps, .m-foot { flex: none; }
+.m-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+
+/* Tab bars: one row, no stray scrollbar, underline sits on the divider */
+.tabs { overflow-x: auto; overflow-y: hidden; scrollbar-width: none; border-bottom: 0; box-shadow: inset 0 -1px 0 var(--line); }
+.tabs::-webkit-scrollbar { display: none; }
+.tabs button { height: 42px; padding: 0 14px; margin-bottom: 0; border-bottom: 2px solid transparent; }
+.tabs button.on { border-bottom-color: var(--co-blue); }
+
+/* Controls: same height, radius and border everywhere */
+.btn { height: var(--ctl); border-radius: var(--ctl-r); }
+.btn.sm { height: var(--ctl-sm); } .btn.xs { height: var(--ctl-xs); }
+.btn.ghost, .btn.warn { border-width: 1px; }
+.btn.warn { border-color: #E3A33A; }
+.search, .ta, .status-sel { height: var(--ctl); border-radius: var(--ctl-r); border-color: var(--ctl-border); }
+.flt select, .flt input, .map-filters select,
+.field input:not([type="checkbox"]):not([type="radio"]), .field select,
+.team-row input, .thr input, .gk-in input { height: var(--ctl); border: 1px solid var(--ctl-border); border-radius: var(--ctl-r); padding: 0 11px; background: #fff; }
+.field textarea, .note-add textarea, .i-fb { border: 1px solid var(--ctl-border); border-radius: var(--ctl-r); padding: 9px 11px; }
+.flt span, .map-filters label > span { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; line-height: 14px; }
+.field > span { line-height: 16px; }
+
+/* Segmented controls share the control height */
+.seg, .period { height: var(--ctl); padding: 3px; align-items: stretch; box-sizing: border-box; }
+.seg button, .period button { display: inline-flex; align-items: center; padding: 0 13px; }
+.seg.sm { height: var(--ctl-sm); } .seg.sm button { padding: 0 10px; }
+.period input { height: 100%; }
+.period span { display: inline-flex; align-items: center; }
+
+/* Table toolbar: every control has a label and lines up on one baseline */
+.tbl-tools { align-items: flex-end; gap: 10px 12px; }
+.flt-search { flex: 1 1 260px; max-width: 360px; }
+.flt-search .search { min-width: 0; width: 100%; }
+.tbl-extra:empty { display: none; }
+
+/* Status pills and badges: one height */
+.st-badge, .rv-st, .comp, .score-badge, .cred, .ctr-st, .role, .ver, .oc-tag, .band-pill, .sync-badge, .onsite, .chip, .rec-tag {
+  height: var(--pill); display: inline-flex; align-items: center; line-height: 1; padding-top: 0; padding-bottom: 0; box-sizing: border-box; vertical-align: middle; white-space: nowrap; }
+.score-badge.big { height: 26px; }
+.sync-badge.sm { height: 18px; }
+td .sync-badge.sm { margin-top: 4px; }
+
+/* Dashboard KPI cards: label (2 lines max), value + icon, note — values line up across cards */
+.kpi { grid-template-columns: 1fr auto; grid-template-areas: "l l" "v ic" "s s"; align-items: center; align-content: start; gap: 6px 10px; padding: 14px 14px 12px; }
+.kpi-l { min-height: calc(2 * 1.25em); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; align-self: start; }
+.kpi b { margin-top: 0; line-height: 1.1; }
+.kpi small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Assign pop-up: list groups */
+.opt-group { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; margin: 6px 2px 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-2); }
+.opt-group em { font-style: normal; font-size: 11px; background: #EEF2F7; padding: 1px 7px; border-radius: 999px; letter-spacing: 0; }
+.opt-group small { width: 100%; font-size: 12px; font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--muted); }
+.opt-group.muted-g { margin-top: 18px; }
+.opt-list + .opt-group { margin-top: 18px; }
+
+/* Messages appear at the top so they never cover pop-up buttons */
+.toasts { left: 50%; right: auto; top: 12px; bottom: auto; transform: translateX(-50%); justify-items: center; }
+.toast { max-width: 560px; }
+
+.card-h { min-height: 24px; }
+.flt-search .search input { height: auto; border: 0; padding: 0; max-width: none; min-width: 0; width: 100%; background: none; border-radius: 0; }
+.tbl-tools .flt select { width: 168px; max-width: none; }
+.tbl-tools .flt input[type="date"] { width: 148px; max-width: none; }
+.card-h { min-height: 32px; align-items: center; }
+.rv-side .card > .rv-st, .mp-head .st-badge, .mp-head .ctr-st { justify-self: start; width: max-content; }
+.vh .rv-st { flex: none; }
+.m-body > .search.wide { margin-bottom: 14px; }
 
 </style>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
@@ -2413,9 +2490,9 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
     for (let i = 1; i <= pages; i++) pg.push(`<button class="${i === t.page ? "on" : ""}" data-a="tblPage" data-arg="${key}|${i}">${i}</button>`);
     return `<div class="tbl-card">
       ${def.noToolbar ? "" : `<div class="tbl-tools">
-        <div class="search">${ic("search", 16)}<input type="search" placeholder="${def.placeholder || "Search"}" value="${esc(t.q)}" data-in="tblQ" data-key="${key}" data-fk="${key}-q"></div>
+        <label class="flt flt-search"><span>Search</span><div class="search">${ic("search", 16)}<input type="search" placeholder="${def.placeholder || "Search"}" value="${esc(t.q)}" data-in="tblQ" data-key="${key}" data-fk="${key}-q"></div></label>
         ${(def.filters || []).filter((f) => !f.hidden).map(sel).join("")}${range}
-        ${(def.filters || []).length || def.dateRange ? `<button class="btn ghost sm" data-a="tblReset" data-arg="${key}">Reset</button>` : ""}
+        ${(def.filters || []).length || def.dateRange ? `<button class="btn ghost" data-a="tblReset" data-arg="${key}">Reset</button>` : ""}
         <div class="tbl-extra">${def.extra || ""}</div></div>${sp}`}
       <div class="tbl-wrap"><table class="tbl"><thead><tr>${def.cols.map((c) => `<th class="${c.cls || ""}${c.sort ? " sortable" : ""}" ${c.sort ? `data-a="tblSort" data-arg="${key}|${c.key}"` : ""}>${c.label}${c.sort ? `<span class="srt ${t.sort === c.key ? t.dir : ""}">${ic(t.sort === c.key && t.dir === "desc" ? "chev-down" : "chev-up", 12)}</span>` : ""}</th>`).join("")}</tr></thead>
       <tbody>${shown.length ? shown.map((r) => `<tr ${def.rowAction ? `data-a="${def.rowAction}" data-arg="${esc(def.rowArg(r))}" class="clickable${def.rowHl && def.rowHl(r) ? " hl" : ""}"` : ""}>${def.cols.map((c) => `<td class="${c.cls || ""}">${c.render(r)}</td>`).join("")}</tr>`).join("")
@@ -2718,7 +2795,7 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
     const r = latestResult(j);
     if (r) return `<span class="comp ${r.fail ? "bad" : r.warn ? "warn" : "ok"}">${r.passed}/${r.total}</span>`;
     const l = live(j);
-    if (l) return `<span class="comp live ${l.warn || l.fail ? "warn" : "ok"}" title="Live from RadonSketch">${ic("sync", 12)} ${l.pass}/${l.n - l.pending} live</span>`;
+    if (l) return `<span class="comp is-live ${l.warn || l.fail ? "warn" : "ok"}" title="Live from RadonSketch">${ic("sync", 12)} ${l.pass}/${l.n - l.pending} live</span>`;
     return `<span class="muted">—</span>`;
   };
   const ctrName = (j) => (j.ctr ? Q.ctr(S(), j.ctr).name : `<span class="muted">Unassigned</span>`);
@@ -2839,7 +2916,7 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
       <div class="kpis">${kpis.map(([k, i, l, v, sub, arg]) => `<button class="kpi k-${k}${hl("kpi-" + k)}" data-a="dashGo" data-arg="${arg}"><span class="kpi-ic">${ic(i, 18)}</span><span class="kpi-l">${l}</span><b>${v}</b><small>${sub}</small></button>`).join("")}</div>
       <div class="grid g-21">
         ${card("Needs attention", `<div class="attn">${att.map((x) => `<button class="attn-i t-${x.tone}${x.n ? "" : " zero"}${hl("attn-" + x.key)}" data-a="${x.a}" data-arg="${x.arg}"><span class="attn-ic">${ic(x.icon, 17)}</span><span class="attn-t"><b>${x.t}</b><small>${x.n ? esc(x.d) : "Nothing outstanding"}</small></span><em>${x.n}</em>${ic("chev-right", 16)}</button>`).join("")}</div>`)}
-        ${card(`Today's schedule <small>${Dt.wdm(now)}</small>`, todays.length ? `<div class="today">${todays.map((j) => `<button class="td-i" data-a="openJob" data-arg="${j.id}"><span class="td-t">${Dt.time(j.sched)}</span><span class="td-b"><b>${hhOf(j).name}</b><small>${hhOf(j).city} · ${ctrOf(j).name}</small></span>${badge(j.status)}</button>`).join("")}</div>` : `<div class="empty">No installations scheduled today.</div>`, `<button class="link" data-a="dashGo" data-arg="jobs|special=upcoming">Next 7 days</button>`)}
+        ${card(`Today's schedule <small>${Dt.wdm(now)}</small>`, todays.length ? `<div class="today-list">${todays.map((j) => `<button class="td-i" data-a="openJob" data-arg="${j.id}"><span class="td-t">${Dt.time(j.sched)}</span><span class="td-b"><b>${hhOf(j).name}</b><small>${hhOf(j).city} · ${ctrOf(j).name}</small></span>${badge(j.status)}</button>`).join("")}</div>` : `<div class="empty">No installations scheduled today.</div>`, `<button class="link" data-a="dashGo" data-arg="jobs|special=upcoming">Next 7 days</button>`)}
       </div>
       <div class="grid g-12">
         ${card(`Contractors with low compliance <small>below ${C.thresholds.good}%</small>`, low.length ? `<table class="tbl mini"><thead><tr><th>Contractor</th><th>Score</th><th>Open corrections</th><th></th></tr></thead><tbody>${low.map((c) => `<tr class="clickable" data-a="openContractor" data-arg="${c.id}"><td><b>${c.name}</b><small class="sub">${c.base.city} · ${statusPill(c.status)}</small></td><td>${scoreBadge(scoreOf(c))}</td><td>${Q.jobsOf(s, c.id).filter((j) => j.status === "corrections").length}</td><td><button class="link" data-a="openContractor" data-arg="${c.id}">View profile ${ic("arrow", 13)}</button></td></tr>`).join("")}</tbody></table>` : `<div class="empty">All contractors are at or above ${C.thresholds.good}%.</div>`)}
@@ -3184,7 +3261,7 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
       cells.push(`<div class="cal-c ${ds === now ? "today" : ""}"><span class="cal-d">${d}</span>${js.map((j) => `<button class="cal-job${hl("cal-" + j.id)}" style="--c:${STATUS[j.status].color}" data-a="openJob" data-arg="${j.id}"><b>${Dt.time(j.sched)}</b><span>${hhOf(j).surname}</span><small>${STATUS[j.status].label}</small></button>`).join("")}</div>`);
     }
     while (cells.length % 7) cells.push(`<div class="cal-c out"></div>`);
-    return `<section class="card cal-card"><header class="card-h"><div class="cal-nav"><button data-a="calNav" data-arg="${key}|-1" aria-label="Previous month">${ic("chev-left", 16)}</button><h3>${Dt.month(cal.m)} ${cal.y}</h3><button data-a="calNav" data-arg="${key}|1" aria-label="Next month">${ic("chev-right", 16)}</button><button class="btn ghost xs" data-a="calNav" data-arg="${key}|0">Today</button></div>${legend()}</header>
+    return `<section class="card cal-card"><header class="card-h"><div class="cal-nav"><button data-a="calNav" data-arg="${key}|-1" aria-label="Previous month">${ic("chev-left", 16)}</button><h3>${Dt.month(cal.m)} ${cal.y}</h3><button data-a="calNav" data-arg="${key}|1" aria-label="Next month">${ic("chev-right", 16)}</button><button class="btn ghost sm" data-a="calNav" data-arg="${key}|0">Today</button></div>${legend()}</header>
       <div class="cal"><div class="cal-h">${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => `<span>${d}</span>`).join("")}</div><div class="cal-g">${cells.join("")}</div></div></section>`;
   }
   const notesBlock = (notes, kind, id) => `<div class="notes">${notes.length ? notes.slice().sort((a, b) => b.at.localeCompare(a.at)).map((n) => `<div class="note"><span class="av sm">${n.by.split(" ").map((w) => w[0]).join("")}</span><div><div class="note-h"><b>${esc(n.by)}</b><span>${Dt.dt(n.at)}</span></div><p>${esc(n.text)}</p></div></div>`).join("") : `<div class="empty">No notes yet.</div>`}
@@ -3257,7 +3334,7 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
       ${st === "failed" ? `<div class="gk-err">${ic("alert", 15)}<span>${esc(G.reason)}</span></div>` : ""}
       <div class="gk-grid">
         <div>
-          <label class="field"><span>${key ? "Replace API key" : "API key"}</span><span class="gk-in"><input type="${U().gkShow ? "text" : "password"}" placeholder="Paste your Google Maps Platform API key (starts with AIza…)" value="${esc(U().gkeyDraft || "")}" data-in="field" data-path="gkeyDraft" data-fk="gkey" autocomplete="off" spellcheck="false"><button class="btn ghost sm" data-a="gShow">${U().gkShow ? "Hide" : "Show"}</button></span></label>
+          <label class="field"><span>${key ? "Replace API key" : "API key"}</span><span class="gk-in"><input type="${U().gkShow ? "text" : "password"}" placeholder="Paste your Google Maps Platform API key (starts with AIza…)" value="${esc(U().gkeyDraft || "")}" data-in="field" data-path="gkeyDraft" data-fk="gkey" autocomplete="off" spellcheck="false"><button class="btn ghost" data-a="gShow">${U().gkShow ? "Hide" : "Show"}</button></span></label>
           <div class="btns"><button class="btn primary" data-a="gSave">${ic("check", 15)} Save &amp; connect</button>${key && G.keySource() === "browser" ? `<button class="btn ghost" data-a="gRemove">Remove key</button>` : ""}</div>
           <p class="gk-note">${ic("lock", 13)} The key is saved only in this browser on this computer (local storage). It isn't written into the prototype files, so files you share don't contain it.</p>
           <b class="gk-h">What it turns on</b>
@@ -3368,7 +3445,7 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
     if (m.success) {
       const c = Q.ctr(s, m.ctr);
       return `<header class="m-head"><div><h2>Job assigned</h2></div><button class="x" data-a="closeModal" aria-label="Close">${ic("x", 20)}</button></header>
-        <div class="m-body success"><span class="ok-c">${ic("check", 34)}</span><h3>Job ${m.success} assigned to ${dot(c.name)}</h3><p>They've been notified, and the project has been created in their RadonSketch app.</p>
+        <div class="m-body m-success"><span class="ok-c">${ic("check", 34)}</span><h3>Job ${m.success} assigned to ${dot(c.name)}</h3><p>They've been notified, and the project has been created in their RadonSketch app.</p>
           <div class="succ-sum">${dl([["Household", Q.hh(s, m.hh).name], ["Target date", Dt.long(m.date)], ["Priority", m.priority], ["Professional", Q.job(s, m.success).professional]])}</div></div>
         <footer class="m-foot"><button class="btn ghost" data-a="assignAnother">Assign another</button><button class="btn ghost" data-a="closeModal">Done</button><button class="btn primary" data-a="openJob" data-arg="${m.success}">View job</button></footer>`;
     }
@@ -3381,8 +3458,13 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
       const list = s.households.map((h) => ({ h, j: Q.jobOfHh(s, h.id) })).filter(({ h }) => !q || [h.name, h.id, h.city, h.county].join(" ").toLowerCase().includes(q))
         .sort((a, b) => (a.j.status === "unassigned" ? 0 : 1) - (b.j.status === "unassigned" ? 0 : 1) || b.h.approved.localeCompare(a.h.approved));
       body = `<div class="search wide">${ic("search", 16)}<input type="search" placeholder="Search household, ID, city or county…" value="${esc(m.q || "")}" data-in="field-r" data-path="modal.q" data-fk="as-q"></div>
-        <p class="hint">Approved households waiting for a contractor are listed first.</p>
-        <div class="opt-list">${list.map(({ h, j }) => { const dis = j.status !== "unassigned"; return `<button class="opt-c ${m.hh === h.id ? "on" : ""}${hl("as-hh-" + h.id)}" data-a="asHh" data-arg="${h.id}" ${dis ? "disabled" : ""}><i class="radio ${m.hh === h.id ? "on" : ""}"></i><span class="oc-m"><b>${h.name}</b><small>${h.id} · ${h.city}, ${h.county} County · approved ${Dt.short(h.approved)}</small></span><span class="oc-r">${h.pre.toFixed(1)} <small>pCi/L</small></span>${dis ? `<span class="oc-tag">${STATUS[j.status].label}</span>` : `<span class="oc-tag ok">Awaiting assignment</span>`}</button>`; }).join("")}</div>`;
+        ${(() => {
+          const row = ({ h, j }) => { const dis = j.status !== "unassigned"; return `<button class="opt-c ${m.hh === h.id ? "on" : ""}${hl("as-hh-" + h.id)}" data-a="asHh" data-arg="${h.id}" ${dis ? "disabled" : ""}><i class="radio ${m.hh === h.id ? "on" : ""}"></i><span class="oc-m"><b>${h.name}</b><small>${h.id} · ${h.city}, ${h.county} County · approved ${Dt.short(h.approved)}</small></span><span class="oc-r">${h.pre.toFixed(1)} <small>pCi/L</small></span>${dis ? `<span class="oc-tag">${STATUS[j.status].label}</span>` : `<span class="oc-tag ok">Awaiting assignment</span>`}</button>`; };
+          const open = list.filter((x) => x.j.status === "unassigned"), taken = list.filter((x) => x.j.status !== "unassigned");
+          return `<div class="opt-group">Awaiting assignment <em>${open.length}</em></div>
+            <div class="opt-list">${open.length ? open.map(row).join("") : `<div class="empty sm">No unassigned households match your search.</div>`}</div>
+            ${taken.length ? `<div class="opt-group muted-g">Already assigned <em>${taken.length}</em><small>To change the contractor, open the job and choose Reassign.</small></div><div class="opt-list">${taken.map(row).join("")}</div>` : ""}`;
+        })()}`;
       next = `<button class="btn primary" data-a="asNext" ${m.hh ? "" : "disabled"}>Next: choose contractor ${ic("arrow", 15)}</button>`;
     } else if (m.step === 2) {
       const h = Q.hh(s, m.hh);
