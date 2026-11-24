@@ -5,8 +5,10 @@
      state, county outlines and labels, clustered status pins, "Reset to Colorado".
    • Offline fallback (Leaflet not loaded): an SVG map of Colorado with county
      outlines, the same pins, zoom/pan locked to the state and the same controls.
+   • With a Google Maps Platform key connected (Settings): Google Maps with the
+     same Colorado-only rules (see shared/google.js).
    API: CoMap.create(el, opts) → { root, setPins, fitCounty, reset, setTracking,
-        invalidate, highlightCounty }
+        invalidate, highlightCounty, focus, showRadius }
    =========================================================================== */
 (function () {
   const GEO = window.CO_GEO;
@@ -28,6 +30,20 @@
   function ctrPin(active, selected) {
     return `<div class="co-ctr-pin ${active ? "active" : ""} ${selected ? "sel" : ""}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17h2l1.2-4.5h11.6L19 17h2"/><path d="M6.2 12.5 8 6h8l1.8 6.5"/><circle cx="7.5" cy="18" r="1.6"/><circle cx="16.5" cy="18" r="1.6"/></svg></div>`;
   }
+  function placePin() {
+    return `<svg class="co-place-pin" width="32" height="42" viewBox="0 0 32 42" aria-hidden="true"><path d="M16 41S2 26 2 16a14 14 0 1 1 28 0c0 10-14 25-14 25z" fill="#1D5FAD" stroke="#fff" stroke-width="2.5"/><circle cx="16" cy="16" r="6.5" fill="#fff"/><circle cx="16" cy="16" r="3" fill="#1D5FAD"/></svg>`;
+  }
+  const inRing = (lat, lng, ring) => {
+    let inside = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const [yi, xi] = ring[i], [yj, xj] = ring[j];
+      if (yi > lat !== yj > lat && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) inside = !inside;
+    }
+    return inside;
+  };
+  const inColorado = (lat, lng) => inRing(lat, lng, STATE);
+  const countyAt = (lat, lng) => { const c = GEO.counties.find((k) => k.rings.some((r) => inRing(lat, lng, r))); return c ? c.name : null; };
+  const pinHtml = (p) => (p.type === "contractor" ? ctrPin(p.active, p.selected) : p.type === "place" ? placePin() : housePin(p.color, p.selected));
   const TARGET_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>`;
 
   /* =========================================================================
@@ -137,10 +153,11 @@
     pins.forEach((p) => {
       const icon = p.type === "contractor"
         ? L.divIcon({ className: "co-leaf-icon", html: ctrPin(p.active, p.selected), iconSize: [30, 30], iconAnchor: [15, 15] })
+        : p.type === "place" ? L.divIcon({ className: "co-leaf-icon", html: placePin(), iconSize: [32, 42], iconAnchor: [16, 41] })
         : L.divIcon({ className: "co-leaf-icon", html: housePin(p.color, p.selected), iconSize: [28, 38], iconAnchor: [14, 37] });
-      const m = L.marker([p.lat, p.lng], { icon, title: p.title || "", riseOnHover: true, zIndexOffset: p.selected ? 1000 : p.type === "contractor" ? 500 : 0 });
+      const m = L.marker([p.lat, p.lng], { icon, title: p.title || "", riseOnHover: true, zIndexOffset: p.type === "place" ? 1500 : p.selected ? 1000 : p.type === "contractor" ? 500 : 0 });
       m.on("click", () => this.opts.onSelect && this.opts.onSelect(p));
-      (p.type === "contractor" || p.selected ? this.markers : this.cluster).addLayer(m);
+      (p.type !== "household" || p.selected ? this.markers : this.cluster).addLayer(m);
     });
   };
   LeafletMap.prototype.highlightCounty = function (name) {
@@ -153,6 +170,13 @@
     if (!c) return this.reset();
     this.map.fitBounds(c.bbox, { padding: [30, 30], maxZoom: 11 });
     this.highlightCounty(name);
+  };
+  LeafletMap.prototype.focus = function (lat, lng, zoom) { this.map.setView([lat, lng], Math.max(zoom || 14, this.map.getMinZoom())); };
+  LeafletMap.prototype.showRadius = function (center, miles) {
+    if (this.circle) { this.map.removeLayer(this.circle); this.circle = null; }
+    if (!center) return;
+    this.circle = this.L.circle(center, { radius: miles * 1609.34, color: "#1D5FAD", weight: 1.5, fillOpacity: 0.06, interactive: false }).addTo(this.map);
+    this.map.fitBounds(this.circle.getBounds(), { padding: [20, 20] });
   };
   LeafletMap.prototype.setTracking = function (t) {
     const L = this.L, map = this.map;
@@ -280,6 +304,12 @@
     this.highlightCounty(name);
   };
   SvgMap.prototype.setPins = function (pins) { this.pins = pins; this._draw(); };
+  SvgMap.prototype.focus = function (lat, lng) { const x = X(lng), y = Y(lat); this._fit(x - 8, y - 5, 16, 10); };
+  SvgMap.prototype.showRadius = function (center, miles) {
+    if (!center) return;
+    const dLat = miles / 69, dLng = miles / (69 * Math.cos((center[0] * Math.PI) / 180));
+    this._fit(X(center[1] - dLng), Y(center[0] + dLat), X(center[1] + dLng) - X(center[1] - dLng), Y(center[0] - dLat) - Y(center[0] + dLat));
+  };
   SvgMap.prototype._draw = function () {
     if (!this.v) return;
     const px = this.v.w / (this.svg.getBoundingClientRect().width || 600); // user units per screen pixel
@@ -308,7 +338,7 @@
       const s = (p.selected ? 1.2 : 1) * px;
       html += p.type === "contractor"
         ? `<g class="co-svg-pin ctr ${p.active ? "active" : ""}" data-i="${i}" transform="translate(${x},${y}) scale(${s})"><circle r="14" class="co-svg-ctr"/><path d="M-7 4h2l1.2-4.5h7.6L5 4h2M-4.8-.5-3-7h6l1.8 6.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><title>${p.title || ""}</title></g>`
-        : `<g class="co-svg-pin" data-i="${i}" transform="translate(${x},${y}) scale(${s})"><path d="M0 0C0 0-12-13.5-12-23a12 12 0 1 1 24 0C12-13.5 0 0 0 0z" fill="${p.color}" stroke="#fff" stroke-width="2"/><path d="M-5.8-22.4 0-27.4l5.8 5v5.6h-11.6z" fill="#fff"/><title>${p.title || ""}</title></g>`;
+        : `<g class="co-svg-pin" data-i="${i}" transform="translate(${x},${y}) scale(${s})"><path d="M0 0C0 0-12-13.5-12-23a12 12 0 1 1 24 0C12-13.5 0 0 0 0z" fill="${p.type === "place" ? "#1D5FAD" : p.color}" stroke="#fff" stroke-width="2"/>${p.type === "place" ? '<circle cy="-23" r="5" fill="#fff"/>' : '<path d="M-5.8-22.4 0-27.4l5.8 5v5.6h-11.6z" fill="#fff"/>'}<title>${p.title || ""}</title></g>`;
     });
     this.gPins.innerHTML = html;
     this._drawTrack(px);
@@ -347,14 +377,165 @@
     }
   };
 
+  /* =========================================================================
+     Google Maps engine (used when a Google Maps Platform key is connected)
+     Same Colorado-only rules: restricted to the state, can't zoom out past
+     the whole state, grey mask outside, county outlines + labels, clustering.
+     ========================================================================= */
+  const merc = (lat, lng) => { const s = Math.sin((lat * Math.PI) / 180); return [((lng + 180) / 360) * 256, (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * 256]; };
+  const ll = (a) => ({ lat: a[0], lng: a[1] });
+  const signedArea = (ring) => ring.reduce((a, p, i) => { const q = ring[(i + 1) % ring.length]; return a + (p[1] * q[0] - q[1] * p[0]); }, 0);
+  function GoogleMap(root, opts) {
+    const g = google.maps;
+    this.g = g; this.root = root; this.opts = opts; this.isGoogle = true; this.markers = []; this.trackObjs = [];
+    root.classList.add("co-gmap");
+    const [[s, w], [n, e]] = CO_BOUNDS, dLat = (n - s) * 0.03, dLng = (e - w) * 0.03;
+    const cfg = (window.CONFIG && window.CONFIG.google) || {};
+    const map = (this.map = new g.Map(root, {
+      mapId: cfg.mapId || "DEMO_MAP_ID",
+      center: { lat: (s + n) / 2, lng: (w + e) / 2 }, zoom: 6,
+      restriction: { latLngBounds: { south: s - dLat, west: w - dLng, north: n + dLat, east: e + dLng }, strictBounds: false },
+      disableDefaultUI: true, zoomControl: !opts.mini, clickableIcons: false,
+      gestureHandling: opts.mini ? "cooperative" : "greedy", keyboardShortcuts: !opts.mini,
+    }));
+    // grey mask outside Colorado (outer box with the state as a hole — opposite winding)
+    const box = [[s - 25, w - 30], [n + 25, w - 30], [n + 25, e + 30], [s - 25, e + 30]];
+    let hole = STATE.slice();
+    if (Math.sign(signedArea(box)) === Math.sign(signedArea(hole))) hole = hole.reverse();
+    new g.Polygon({ map, paths: [box.map(ll), hole.map(ll)], strokeOpacity: 0, fillColor: "#5B6472", fillOpacity: 0.45, clickable: false, zIndex: 1 });
+    this.countyPolys = {};
+    GEO.counties.forEach((c) => {
+      this.countyPolys[c.name] = new g.Polygon({ map, paths: c.rings.map((r) => r.map(ll)), strokeColor: "#5E6B7E", strokeWeight: 0.8, strokeOpacity: 0.75, fillOpacity: 0, clickable: false, zIndex: 2 });
+    });
+    new g.Polygon({ map, paths: STATE.map(ll), strokeColor: "#13294B", strokeWeight: 2.6, fillOpacity: 0, clickable: false, zIndex: 3 });
+    this.labels = opts.labels ? GEO.counties.map((c) => {
+      const el = document.createElement("div"); el.className = "co-county-lbl g"; el.innerHTML = `<span>${c.name}</span>`;
+      return new g.marker.AdvancedMarkerElement({ position: ll(c.center), content: el, zIndex: 5 });
+    }) : [];
+    // "Reset to Colorado" control
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "co-reset g"; b.title = "Reset to Colorado"; b.setAttribute("aria-label", "Reset to Colorado");
+    b.innerHTML = TARGET_SVG + (opts.mini ? "" : "<span>Colorado</span>");
+    b.addEventListener("click", (ev) => { ev.stopPropagation(); this.reset(); if (opts.onReset) opts.onReset(); });
+    map.controls[g.ControlPosition.RIGHT_TOP].push(b);
+    map.addListener("idle", () => { const z = map.getZoom(); if (z !== this._z) { this._z = z; this._cluster(); this._labels(); } });
+    this.reset();
+  }
+  GoogleMap.prototype._fitZoom = function () {
+    const r = this.root.getBoundingClientRect(), pad = this.opts.mini ? 8 : 24;
+    if (!r.width || !r.height) return 6;
+    const [[s, w], [n, e]] = CO_BOUNDS, [x0, y0] = merc(n, w), [x1, y1] = merc(s, e);
+    return Math.max(3, Math.floor(Math.min(Math.log2((r.width - pad * 2) / (x1 - x0)), Math.log2((r.height - pad * 2) / (y1 - y0)))));
+  };
+  GoogleMap.prototype._labels = function () {
+    const show = this.map.getZoom() <= (this._minZ || 6) + 2;
+    this.labels.forEach((m) => { if (!!m.map !== show) m.map = show ? this.map : null; });
+  };
+  GoogleMap.prototype.reset = function () {
+    const [[s, w], [n, e]] = CO_BOUNDS;
+    this._minZ = this._fitZoom();
+    this.map.setOptions({ minZoom: this._minZ });
+    this.map.setCenter({ lat: (s + n) / 2, lng: (w + e) / 2 });
+    this.map.setZoom(this._minZ);
+    this.highlightCounty(null);
+  };
+  GoogleMap.prototype.invalidate = function () {
+    const z = this._fitZoom();
+    if (z !== this._minZ) { this._minZ = z; this.map.setOptions({ minZoom: z }); if (this.map.getZoom() < z) this.reset(); }
+  };
+  GoogleMap.prototype.setPins = function (pins) {
+    const sig = JSON.stringify(pins);
+    if (sig === this._sig) return;
+    this._sig = sig; this.pins = pins; this._cluster();
+  };
+  GoogleMap.prototype._marker = function (lat, lng, html, opt = {}) {
+    const el = document.createElement("div");
+    el.className = "co-gpin" + (opt.center ? " center" : "");
+    el.innerHTML = html;
+    const m = new this.g.marker.AdvancedMarkerElement({ map: this.map, position: { lat, lng }, content: el, title: opt.title || "", zIndex: opt.z || 100 });
+    if (opt.onClick) m.addListener("click", opt.onClick);
+    return m;
+  };
+  GoogleMap.prototype._cluster = function () {
+    const zoom = this.map.getZoom();
+    if (zoom == null || !this.pins) return;
+    this.markers.forEach((m) => (m.map = null));
+    this.markers = [];
+    const scale = Math.pow(2, zoom), cell = this.opts.mini ? 34 : 46, groups = {}, singles = [];
+    this.pins.forEach((p) => {
+      if (p.type !== "household" || p.selected || this.opts.cluster === false || zoom >= 12) { singles.push(p); return; }
+      const [x, y] = merc(p.lat, p.lng), k = Math.floor((x * scale) / cell) + ":" + Math.floor((y * scale) / cell);
+      (groups[k] = groups[k] || []).push(p);
+    });
+    Object.values(groups).forEach((gr) => {
+      if (gr.length === 1) { singles.push(gr[0]); return; }
+      const lat = gr.reduce((a, p) => a + p.lat, 0) / gr.length, lng = gr.reduce((a, p) => a + p.lng, 0) / gr.length;
+      this.markers.push(this._marker(lat, lng, `<div class="co-cluster"><span>${gr.length}</span></div>`, { center: true, z: 400, title: `${gr.length} households`, onClick: () => {
+        const b = new this.g.LatLngBounds(); gr.forEach((p) => b.extend({ lat: p.lat, lng: p.lng })); this.map.fitBounds(b, 80);
+      } }));
+    });
+    singles.forEach((p) => this.markers.push(this._marker(p.lat, p.lng, pinHtml(p), {
+      center: p.type === "contractor", title: p.title, z: p.type === "place" ? 1500 : p.selected ? 1000 : p.type === "contractor" ? 500 : 100,
+      onClick: () => this.opts.onSelect && this.opts.onSelect(p),
+    })));
+  };
+  GoogleMap.prototype.highlightCounty = function (name) {
+    Object.entries(this.countyPolys).forEach(([k, poly]) => poly.setOptions(k === name
+      ? { strokeColor: "#1D5FAD", strokeWeight: 2.6, strokeOpacity: 1, fillColor: "#1D5FAD", fillOpacity: 0.06 }
+      : { strokeColor: "#5E6B7E", strokeWeight: 0.8, strokeOpacity: 0.75, fillOpacity: 0 }));
+  };
+  GoogleMap.prototype.fitCounty = function (name) {
+    const c = countyByName[name];
+    if (!c) return this.reset();
+    const [[s, w], [n, e]] = c.bbox;
+    this.map.fitBounds({ south: s, west: w, north: n, east: e }, 30);
+    this.highlightCounty(name);
+  };
+  GoogleMap.prototype.focus = function (lat, lng, zoom) { this.map.setCenter({ lat, lng }); this.map.setZoom(Math.max(zoom || 14, this._minZ || 6)); };
+  GoogleMap.prototype.showRadius = function (center, miles) {
+    if (this.circle) { this.circle.setMap(null); this.circle = null; }
+    if (!center) return;
+    this.circle = new this.g.Circle({ map: this.map, center: ll(center), radius: miles * 1609.34, strokeColor: "#1D5FAD", strokeWeight: 1.5, fillColor: "#1D5FAD", fillOpacity: 0.06, clickable: false, zIndex: 4 });
+    this.map.fitBounds(this.circle.getBounds(), 20);
+  };
+  GoogleMap.prototype.setTracking = function (t) {
+    cancelAnimationFrame(this._raf);
+    this.trackObjs.forEach((o) => (o.setMap ? o.setMap(null) : (o.map = null)));
+    this.trackObjs = [];
+    if (!t) return;
+    this.trackObjs.push(this._marker(t.home[0], t.home[1], housePin(t.color || "#E08A00", true), { z: 900 }));
+    if (!t.contractor) { this.map.setCenter(ll(t.home)); this.map.setZoom(14); return; }
+    const start = t.animate ? t.from : t.contractor;
+    const dot = this._marker(start[0], start[1], '<div class="co-live-dot"></div>', { center: true, z: 2000 });
+    const line = new this.g.Polyline({ map: this.map, path: [ll(t.from), ll(start)], strokeOpacity: 0, zIndex: 6,
+      icons: [{ icon: { path: "M 0,-1 0,1", strokeOpacity: 0.9, strokeColor: "#1D5FAD", scale: 3 }, offset: "0", repeat: "12px" }] });
+    this.trackObjs.push(dot, line);
+    const b = new this.g.LatLngBounds(); b.extend(ll(t.home)); b.extend(ll(t.from));
+    this.map.fitBounds(b, 70);
+    if (t.animate) {
+      const t0 = performance.now(), dur = 3600;
+      const step = (now) => {
+        const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+        const p = { lat: t.from[0] + (t.contractor[0] - t.from[0]) * e, lng: t.from[1] + (t.contractor[1] - t.from[1]) * e };
+        dot.position = p; line.setPath([ll(t.from), p]);
+        if (k < 1) this._raf = requestAnimationFrame(step);
+      };
+      this._raf = requestAnimationFrame(step);
+    }
+  };
+
   window.CoMap = {
     bounds: CO_BOUNDS,
     counties: GEO.counties.map((c) => c.name),
     countyOf: (name) => countyByName[name],
-    housePin, ctrPin,
+    inColorado, countyAt,
+    housePin, ctrPin, placePin,
+    usingGoogle: () => !!(window.GMaps && window.GMaps.ready() && !window.CoMap.forceFallback),
     usingLeaflet: () => !!(window.L && window.L.map && !window.CoMap.forceFallback),
+    engine() { return this.usingGoogle() ? "google" : this.usingLeaflet() ? "leaflet" : "svg"; },
     forceFallback: false,
     create(el, opts = {}) {
+      if (this.usingGoogle()) { try { return new GoogleMap(el, opts); } catch (e) { console.error("Google map failed, using fallback", e); } }
       return this.usingLeaflet() ? new LeafletMap(el, opts) : new SvgMap(el, opts);
     },
   };

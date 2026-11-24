@@ -14,8 +14,8 @@
   const freshUI = () => ({
     route: { page: "login" }, modal: null, tables: {}, toasts: [], period: "month",
     custom: { from: "2026-11-01", to: "2026-11-30" },
-    map: { layer: "both", f: { zip: "", radius: "", county: "", ctr: "", status: "", band: "" }, applied: {}, sel: null },
-    highlight: [], menu: null, cal: {}, ctrTab: "details", metricsRange: "all", projToggle: "current", reportTab: "pending",
+    map: { layer: "both", f: { zip: "", radius: "", county: "", ctr: "", status: "", band: "", zipGeo: null }, applied: {}, sel: null, place: null },
+    highlight: [], menu: null, cal: {}, ta: {}, gkeyDraft: "", gkShow: false, ctrTab: "details", metricsRange: "all", projToggle: "current", reportTab: "pending",
   });
 
   /* ---------- helpers ---------- */
@@ -93,8 +93,76 @@
       const county = d.county || null;
       if (county !== m._county) { m._county = county; county ? m.fitCounty(county) : m.reset(); }
       if ((d.trackKey || null) !== (m._trackKey || null)) { m._trackKey = d.trackKey || null; m.setTracking(d.tracking || null); }
+      const rk = d.radius ? d.radius.key : null;
+      if (rk !== (m._radiusKey || null)) { m._radiusKey = rk; if (m.showRadius) m.showRadius(d.radius ? d.radius.center : null, d.radius ? d.radius.miles : 0); }
+      const fk = d.focus ? d.focus.key : null;
+      if (fk !== (m._focusKey || null)) { m._focusKey = fk; if (d.focus && m.focus) m.focus(d.focus.lat, d.focus.lng, d.focus.zoom); }
     });
   }
+  Portal.resetMaps = function () {
+    Object.values(Portal.MAPS).forEach((m) => {
+      try { if (!m.isGoogle && m.map && m.map.remove) m.map.remove(); } catch (e) {}
+      if (m.root) m.root.remove();
+    });
+    Portal.MAPS = {};
+  };
+
+  /* ---------- address typeahead (Google Places) ---------- */
+  const TA = { items: {}, idx: {}, timers: {}, seq: {} };
+  Portal.taBox = function (key, kind, { placeholder = "", value = "" } = {}) {
+    return `<div class="ta" data-ta-box="${key}">${ic("search", 15)}<input class="ta-in" type="search" data-ta="${key}" data-kind="${kind}" data-fk="ta-${key}" value="${esc(value)}" placeholder="${esc(placeholder)}" autocomplete="off" spellcheck="false" aria-autocomplete="list">
+      <div class="ta-list" data-ta-list="${key}" hidden></div></div>`;
+  };
+  const taList = (key, html) => { const el = Portal.root.querySelector(`[data-ta-list="${key}"]`); if (!el) return; el.innerHTML = html; el.hidden = !html; };
+  const taFoot = `<div class="ta-foot">powered by <b><span style="color:#4285F4">G</span><span style="color:#EA4335">o</span><span style="color:#FBBC05">o</span><span style="color:#4285F4">g</span><span style="color:#34A853">l</span><span style="color:#EA4335">e</span></b></div>`;
+  function taRender(key) {
+    const items = TA.items[key] || [], idx = TA.idx[key] || 0;
+    taList(key, items.length
+      ? items.map((it, i) => `<button type="button" class="ta-i ${i === idx ? "on" : ""}" data-a="taPick" data-arg="${key}|${i}">${ic("map-pin", 15)}<span><b>${esc(it.main)}</b><small>${esc(it.secondary)}</small></span></button>`).join("") + taFoot
+      : `<div class="ta-msg">No matches in Colorado.</div>${taFoot}`);
+  }
+  Portal.taInput = function (el) {
+    const key = el.dataset.ta, kind = el.dataset.kind, q = el.value;
+    Portal.UI.ta[key] = q;
+    clearTimeout(TA.timers[key]);
+    if (q.trim().length < 3 || !window.GMaps || !window.GMaps.ready()) { TA.items[key] = []; taList(key, ""); return; }
+    taList(key, `<div class="ta-msg">Searching…</div>${taFoot}`);
+    const seq = (TA.seq[key] = (TA.seq[key] || 0) + 1);
+    TA.timers[key] = setTimeout(async () => {
+      try {
+        const items = await window.GMaps.suggest(q.trim(), kind);
+        if (seq !== TA.seq[key]) return;
+        TA.items[key] = items; TA.idx[key] = 0; taRender(key);
+      } catch (e) {
+        if (seq !== TA.seq[key]) return;
+        TA.items[key] = []; taList(key, `<div class="ta-msg err">${ic("alert", 14)} ${esc(e.message)}</div>`);
+      }
+    }, 220);
+  };
+  Portal.taPick = async function (key, i) {
+    const it = (TA.items[key] || [])[+i];
+    if (!it) return;
+    taList(key, `<div class="ta-msg">Loading ${esc(it.main)}…</div>`);
+    try {
+      const res = await window.GMaps.resolve(it.pred);
+      TA.items[key] = []; taList(key, "");
+      const fn = window.PortalActions["ta_" + key];
+      if (fn) fn(res, it);
+    } catch (e) { taList(key, ""); Portal.toast(e.message, "warn"); }
+  };
+  Portal.taKey = function (e) {
+    const el = e.target, key = el.dataset.ta, items = TA.items[key] || [];
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      if (!items.length) return;
+      e.preventDefault();
+      TA.idx[key] = ((TA.idx[key] || 0) + (e.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+      taRender(key);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (items.length) Portal.taPick(key, TA.idx[key] || 0);
+      else if (window.PortalActions["taEnter_" + key]) window.PortalActions["taEnter_" + key](el.value);
+    } else if (e.key === "Escape") { TA.items[key] = []; taList(key, ""); }
+  };
   Portal.onMapReset = function (key) {
     if (key === "main" && Portal.UI.map.applied.county) { Portal.UI.map.applied.county = ""; Portal.UI.map.f.county = ""; Portal.MAPS.main._county = null; Portal.render(); }
   };
@@ -127,6 +195,7 @@
     attachMaps();
     root.querySelectorAll("[data-scroll]").forEach((el) => { if (scrolls[el.dataset.scroll] != null) el.scrollTop = scrolls[el.dataset.scroll]; });
     if (fk) { const el = root.querySelector(`[data-fk="${fk}"]`); if (el) { el.focus(); try { el.setSelectionRange(caret, caret); } catch (e) {} } }
+    if (fk && fk.startsWith("ta-") && (TA.items[fk.slice(3)] || []).length) taRender(fk.slice(3)); // keep an open suggestion list open
   };
 
   function layout(content) {
@@ -181,8 +250,10 @@
 
   /* ---------- events ---------- */
   function bind(root) {
+    root.addEventListener("mousedown", (e) => { if (e.target.closest(".ta-list")) e.preventDefault(); });
     root.addEventListener("click", (e) => {
       if (Portal.embedded) return;
+      if (!e.target.closest(".ta")) root.querySelectorAll(".ta-list").forEach((l) => (l.hidden = true));
       const el = e.target.closest("[data-a]");
       if (Portal.UI.menu && !(el && el.dataset.a === "userMenu")) { Portal.UI.menu = null; if (!el) { Portal.render(); return; } }
       if (!el || !root.contains(el)) return;
@@ -195,6 +266,7 @@
     });
     root.addEventListener("input", (e) => {
       const el = e.target;
+      if (el.dataset.ta) { Portal.taInput(el); return; }
       if (el.dataset.in === "tblQ") { const t = Portal.UI.tables[el.dataset.key]; t.q = el.value; t.page = 1; Portal.render(); }
       else if (el.dataset.in === "field") setPath(el.dataset.path, el.type === "checkbox" ? el.checked : el.value);
       else if (el.dataset.in === "field-r") { setPath(el.dataset.path, el.value); Portal.render(); }
@@ -204,6 +276,7 @@
       if (el.dataset.ch && window.PortalActions[el.dataset.ch]) window.PortalActions[el.dataset.ch](el.value, el, e);
     });
     root.addEventListener("keydown", (e) => {
+      if (e.target.dataset && e.target.dataset.ta) { Portal.taKey(e); return; }
       if (e.key === "Escape" && Portal.UI.modal && !Portal.embedded) { Portal.UI.modal = null; Portal.render(); }
       if (e.key === "Enter" && e.target.dataset && e.target.dataset.enter) { e.preventDefault(); window.PortalActions[e.target.dataset.enter](); }
     });
@@ -225,7 +298,18 @@
     if (opts.route) Portal.UI.route = opts.route;
     Object.entries(C.colors).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
     bind(root);
+    if (!Portal.embedded) { try { if (sessionStorage.getItem("lirma.resume") === "settings") { Portal.UI.route = { page: "settings" }; sessionStorage.removeItem("lirma.resume"); } } catch (e) {} }
     Portal.render();
+    if (window.GMaps) {
+      window.GMaps.on((st, reason) => {
+        if (st === "ready" || st === "failed") Portal.resetMaps();
+        if (Portal.embedded) { Portal.render(); return; }
+        if (st === "ready") { Portal.render(); setTimeout(() => { if (window.GMaps.ready()) Portal.toast("Google Maps connected — real street map and address search are on."); }, 2000); }
+        else if (st === "failed") Portal.toast(`Google Maps not available: ${reason} The standard map is used instead.`, "warn");
+        else Portal.render();
+      });
+      window.GMaps.load();
+    }
     if (!opts.embedded) window.addEventListener("resize", () => Object.values(Portal.MAPS).forEach((m) => m.root.isConnected && m.invalidate()));
   };
   Portal.reset = function (store, ui) {

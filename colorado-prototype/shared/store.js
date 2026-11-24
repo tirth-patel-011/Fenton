@@ -332,9 +332,13 @@
     },
     close(S, jobId, at) { const job = Q.job(S, jobId); job.status = "closed"; job.closedAt = at; Ops.event(job, at, "programme", "archive", "Job closed", "Job closed by the programme."); },
     addHousehold(S, f) {
-      const city = C.cities[f.city], r = rng(f.name + f.street);
+      const r = rng(f.name + f.street), geo = f.lat != null && f.lat !== "" && f.lng != null && f.lng !== "";
+      // real address (Google Places): exact coordinates; otherwise near the chosen sample city
+      const nearest = geo ? Object.entries(C.cities).sort((x, y) => miles([+f.lat, +f.lng], [x[1].lat, x[1].lng]) - miles([+f.lat, +f.lng], [y[1].lat, y[1].lng]))[0] : null;
+      const city = C.cities[f.city] || (nearest ? nearest[1] : C.cities.Denver);
       const id = `HH-2026-${String(418 + S.households.length - 40).padStart(4, "0")}`;
-      const hh = { id, name: `${f.name} Household`, surname: f.name, street: f.street, city: f.city, county: city.county, zip: f.zip || "", lat: +(city.lat + (r() - 0.5) * 0.05).toFixed(5), lng: +(city.lng + (r() - 0.5) * 0.06).toFixed(5), phone: f.phone || `(${city.area}) 555-0198`, approved: f.approved || Dt.date(S.now), pre: +f.pre || 6.0, foundation: f.foundation || "Basement", built: +f.built || 1970, occ: +f.occ || 2, sump: f.foundation !== "Slab-on-grade" };
+      const hh = { id, name: `${f.name} Household`, surname: f.name, street: f.street, city: f.city || (nearest ? nearest[0] : "Denver"), county: f.county || city.county, zip: f.zip || "",
+        lat: geo ? +(+f.lat).toFixed(6) : +(city.lat + (r() - 0.5) * 0.05).toFixed(5), lng: geo ? +(+f.lng).toFixed(6) : +(city.lng + (r() - 0.5) * 0.06).toFixed(5), phone: f.phone || `(${city.area}) 555-0198`, approved: f.approved || Dt.date(S.now), pre: +f.pre || 6.0, foundation: f.foundation || "Basement", built: +f.built || 1970, occ: +f.occ || 2, sump: f.foundation !== "Slab-on-grade" };
       S.households.push(hh);
       const job = { id: Ops.newJobId(S), hh: id, ctr: null, status: "unassigned", createdAt: S.now, reports: [], notes: [], events: [], live: {}, photos: 0, post: null, funded: 1950, priority: "Standard", instructions: "", bom: makeBom(hh, r) };
       Ops.event(job, S.now, "programme", "plus", "Job created", `Household approved for ${C.program.lirma}; installation job opened.`);

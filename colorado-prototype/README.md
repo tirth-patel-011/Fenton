@@ -30,6 +30,26 @@ Two clickable design prototypes for the Colorado Radon Program pitch. They use H
 - **Offline:** if Leaflet can't load, every map automatically switches to an offline SVG map of Colorado. It keeps the same county outlines, pins, clustering, the pan/zoom lock and the Reset to Colorado button.
 - **Boundary data:** `shared/colorado-geo.js` is generated from US Census cartographic boundaries (public domain, via the `us-atlas` package).
 
+## Google Maps Platform (optional, real address search)
+With a Google Maps Platform key, the portal uses real Google services:
+- Google street map on every map, still locked to Colorado.
+- Address and place search on Map View: the pin, the county, nearby LIRMA households and the contractors serving that address, plus "Add as LIRMA household".
+- A real ZIP code and radius filter for any Colorado ZIP.
+- Address autocomplete in Add Household, giving the household its exact location.
+
+**Adding the key:** open **Settings → Google Maps Platform**, paste the key and choose **Save & connect**.
+- The key is saved **only in that browser** (local storage), never in these files, so files you share don't contain it.
+- The workflow demo opened in the same browser uses it too.
+- With no key, or if Google rejects it, everything uses the standard map.
+
+**Key setup in Google Cloud Console:**
+1. Enable **Maps JavaScript API** and **Places API (New)**.
+2. Make sure billing is enabled.
+3. Restrict the key to those two APIs, and set a quota or budget alert.
+4. Leave website (HTTP referrer) restrictions off while opening the prototype by double-clicking, because a local file has no website address. Add them once the prototype is hosted on a website.
+
+`CONFIG.google.mapId` is Google's test ID `DEMO_MAP_ID`; create your own Map ID for production.
+
 ## Editing
 Everything editable is in **`shared/data.js` → `CONFIG`**:
 - agency name, programme name and portal name

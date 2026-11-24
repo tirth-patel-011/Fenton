@@ -28,6 +28,12 @@ window.CONFIG = {
   // Note: OpenStreetMap's own tile server (tile.openstreetmap.org) blocks pages opened from a local
   // file ("Access blocked"), so the defaults are OSM-based providers that allow it.
   // For production, the state would use its own licensed tile service.
+  // Google Maps Platform (optional). Leave apiKey EMPTY: the key is entered in the portal under
+  // Settings → Google Maps Platform and saved only in that browser, so shared files never contain it.
+  // Needs "Maps JavaScript API" + "Places API (New)". "DEMO_MAP_ID" is Google's test map ID —
+  // create your own Map ID in Google Cloud Console for production.
+  google: { apiKey: "", mapId: "DEMO_MAP_ID" },
+
   map: {
     tiles: [
       {

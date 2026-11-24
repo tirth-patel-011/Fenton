@@ -161,15 +161,15 @@
   }
   function mapFiltered() {
     const s = S(), a = U().map.applied;
-    const zc = a.zip ? zipCenter(a.zip) : null;
-    const inZip = (lat, lng, zip) => !a.zip || (a.radius ? miles(zc, [lat, lng]) <= +a.radius : zip === a.zip);
+    const zc = a.zip ? (a.zipGeo ? [a.zipGeo.lat, a.zipGeo.lng] : zipCenter(a.zip)) : null;
+    const inZip = (lat, lng, zip) => !a.zip || (a.radius && zc ? miles(zc, [lat, lng]) <= +a.radius : zip === a.zip);
     const jobs = s.jobs.filter((j) => {
       const h = hhOf(j), c = ctrOf(j);
       return inZip(h.lat, h.lng, h.zip) && (!a.county || h.county === a.county) && (!a.ctr || j.ctr === a.ctr) && (!a.status || j.status === a.status) && (!a.band || (c && band(scoreOf(c)).key === a.band));
     });
     const ctrs = s.contractors.filter((c) => {
       const l = Q.location(s, c);
-      return (!a.ctr || c.id === a.ctr) && (!a.band || band(scoreOf(c)).key === a.band) && (!a.county || c.counties.includes(a.county) || Q.openJobs(s, c.id).some((j) => hhOf(j).county === a.county)) && (!a.zip || !a.radius || miles(zc, [l.lat, l.lng]) <= +a.radius);
+      return (!a.ctr || c.id === a.ctr) && (!a.band || band(scoreOf(c)).key === a.band) && (!a.county || c.counties.includes(a.county) || Q.openJobs(s, c.id).some((j) => hhOf(j).county === a.county)) && (!a.zip || !a.radius || !zc || miles(zc, [l.lat, l.lng]) <= +a.radius);
     });
     return { jobs, ctrs };
   }
@@ -177,7 +177,10 @@
     const s = S(), m = U().map, f = m.f, a = m.applied, sel = m.sel;
     const { jobs, ctrs } = mapFiltered();
     const zips = [...new Set(s.households.map((h) => h.zip))].sort();
+    const G = window.CoMap.usingGoogle(), place = m.place;
+    const zc = a.zip ? (a.zipGeo ? [a.zipGeo.lat, a.zipGeo.lng] : zipCenter(a.zip)) : null;
     const pins = [];
+    if (place) pins.push({ type: "place", id: "place", lat: place.lat, lng: place.lng, title: place.formatted });
     if (m.layer !== "contractors") jobs.forEach((j) => pins.push(hhPin(j, sel && sel.type === "household" && sel.id === j.hh)));
     if (m.layer !== "households") ctrs.forEach((c) => pins.push(ctrPin(c, sel && sel.type === "contractor" && sel.id === c.id)));
     const opt = (k, arr, all) => `<select data-ch="mapF" data-f="${k}"><option value="">${all}</option>${arr.map((o) => { const [v, l] = Array.isArray(o) ? o : [o, o]; return `<option value="${esc(v)}" ${f[k] === v ? "selected" : ""}>${esc(l)}</option>`; }).join("")}</select>`;
@@ -190,8 +193,8 @@
     return `<div class="page-head tight"><div><h1>Map View</h1><p>Every ${esc(C.program.lirma)} household and contractor in Colorado — live from RadonSketch.</p></div>
         <div class="seg">${[["households", "Households"], ["contractors", "Contractors"], ["both", "Both"]].map(([k, l]) => `<button class="${m.layer === k ? "on" : ""}" data-a="mapLayer" data-arg="${k}">${l}</button>`).join("")}</div></div>
       <div class="map-filters">
-        <label><span>ZIP code</span>${opt("zip", zips.map((z) => [z, `${z} · ${s.households.find((h) => h.zip === z).city}`]), "Any Colorado ZIP")}</label>
-        <label><span>Radius</span><select data-ch="mapF" data-f="radius" ${f.zip ? "" : "disabled"}><option value="">Exact ZIP</option>${[5, 10, 25, 50, 100].map((r) => `<option value="${r}" ${f.radius == r ? "selected" : ""}>${r} mi</option>`).join("")}</select></label>
+        <label class="${G ? "zip-ta" : ""}"><span>ZIP code${G ? " · Google" : ""}</span>${G ? Pt.taBox("zip", "zip", { placeholder: "Any Colorado ZIP", value: U().ta.zip != null ? U().ta.zip : f.zip }) : opt("zip", zips.map((z) => [z, `${z} · ${s.households.find((h) => h.zip === z).city}`]), "Any Colorado ZIP")}</label>
+        <label><span>Radius</span><select data-ch="mapF" data-f="radius" ${f.zip || (G && U().ta.zip) ? "" : "disabled"}><option value="">Exact ZIP</option>${[5, 10, 25, 50, 100].map((r) => `<option value="${r}" ${f.radius == r ? "selected" : ""}>${r} mi</option>`).join("")}</select></label>
         <label><span>County</span>${opt("county", countyNames, "All 64 counties")}</label>
         <label><span>Contractor</span>${opt("ctr", s.contractors.map((c) => [c.id, c.name]), "All contractors")}</label>
         <label><span>Job status</span>${opt("status", statusOpts, "All statuses")}</label>
@@ -199,12 +202,34 @@
         <button class="btn ghost" data-a="mapReset">Reset</button><button class="btn primary" data-a="mapSearch">${ic("search", 15)} Search</button>
       </div>
       <div class="map-area ${sel ? "with-panel" : ""}">
-        <div class="map-wrap">${Pt.mapSlot("main", { labels: true }, { pins, county: a.county || null })}
+        <div class="map-wrap">${Pt.mapSlot("main", { labels: true }, {
+            pins, county: a.county || null,
+            radius: a.radius && zc ? { key: `${zc.join(",")}|${a.radius}`, center: zc, miles: +a.radius } : null,
+            focus: place ? { key: `p${place.lat},${place.lng}`, lat: place.lat, lng: place.lng, zoom: 15 } : a.zipGeo && !a.radius ? { key: `z${a.zip}`, lat: a.zipGeo.lat, lng: a.zipGeo.lng, zoom: 12 } : null,
+          })}
+          ${G ? `<div class="map-search">${Pt.taBox("place", "place", { placeholder: "Search a Colorado address or place…", value: U().ta.place || "" })}</div>`
+            : `<button class="map-search off" data-a="go" data-arg="settings">${ic(window.GMaps && window.GMaps.status === "failed" ? "alert" : "search", 15)} ${window.GMaps && window.GMaps.status === "failed" ? "Google Maps unavailable — see Settings" : window.GMaps && window.GMaps.status === "loading" ? "Connecting to Google Maps…" : "Connect Google Maps in Settings to search real addresses"}</button>`}
           ${strip}<div class="map-legend"><b>Job status</b>${C.statuses.map((x) => `<span><i style="background:${x.color}"></i>${x.label}</span>`).join("")}<span class="lg-ctr"><i></i>Contractor (ring = on site)</span></div>
-          <div class="map-count">${m.layer !== "contractors" ? `${jobs.length} households` : ""}${m.layer === "both" ? " · " : ""}${m.layer !== "households" ? `${ctrs.length} contractors` : ""}</div>
+          <div class="map-count">${m.layer !== "contractors" ? `${jobs.length} households` : ""}${m.layer === "both" ? " · " : ""}${m.layer !== "households" ? `${ctrs.length} contractors` : ""}${a.zip ? ` · ZIP ${esc(a.zip)}${a.radius ? ` + ${a.radius} mi` : ""}` : ""}${G ? ` <span class="g-on">Google</span>` : ""}</div>
         </div>
-        ${sel ? `<aside class="map-panel" data-scroll="map-panel">${sel.type === "household" ? hhPanel(sel.id) : ctrPanel(sel.id)}</aside>` : ""}
+        ${sel ? `<aside class="map-panel" data-scroll="map-panel">${sel.type === "place" && place ? placePanel(place) : sel.type === "household" ? hhPanel(sel.id) : sel.type === "contractor" ? ctrPanel(sel.id) : ""}</aside>` : ""}
       </div>`;
+  }
+  function placePanel(p) {
+    const s = S(), here = [p.lat, p.lng];
+    const near = s.households.map((h) => ({ h, d: miles(here, [h.lat, h.lng]) })).filter((x) => x.d <= 15).sort((a, b) => a.d - b.d).slice(0, 4);
+    const dupe = near.find((x) => x.d < 0.05);
+    const ctrs = s.contractors.map((c) => ({ c, d: miles(here, [c.base.lat, c.base.lng]), inArea: c.counties.includes(p.county) }))
+      .sort((a, b) => (b.inArea - a.inArea) || a.d - b.d).slice(0, 4);
+    const fmt = (d) => (d < 0.1 ? "< 0.1 mi" : `${d.toFixed(d < 10 ? 1 : 0)} mi`);
+    return `<div class="mp-head"><div><small>${ic("search", 12)} Address search · Google</small><h3>${esc(p.street || p.name || p.formatted.split(",")[0])}</h3><span class="chip">${esc(p.county || "—")} County</span></div><button class="x" data-a="mapClearPlace" aria-label="Clear search">${ic("x", 18)}</button></div>
+      ${dl([["Address", esc(p.formatted)], ["County", p.county ? `${esc(p.county)} County` : "—"], ["ZIP code", esc(p.zip || "—")], ["Coordinates", `<span class="mono">${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}</span>`]])}
+      ${dupe ? `<div class="mp-note">${ic("home", 15)} This address matches <b>${dupe.h.name}</b> (${dupe.h.id}).</div>` : ""}
+      <h4 class="mp-h">LIRMA households within 15 mi <em>${near.length}</em></h4>
+      <div class="mp-jobs">${near.length ? near.map(({ h, d }) => { const j = Q.jobOfHh(s, h.id); return `<button data-a="mapSelectHh" data-arg="${h.id}"><span><b>${h.name}</b><small>${h.city} · ${fmt(d)}</small></span>${badge(j.status)}</button>`; }).join("") : `<div class="empty sm">No programme households nearby.</div>`}</div>
+      <h4 class="mp-h">Contractors for this address</h4>
+      <div class="mp-jobs">${ctrs.map(({ c, d, inArea }) => `<button data-a="openContractor" data-arg="${c.id}"><span><b>${c.name}</b><small>${fmt(d)} from base · ${inArea ? `<span class="ok-t">serves ${esc(p.county)} County</span>` : "outside service area"}${c.status !== "Active" ? ` · ${c.status}` : ""}</small></span>${scoreBadge(scoreOf(c))}</button>`).join("")}</div>
+      ${dupe ? `<button class="btn primary block" data-a="mapSelectHh" data-arg="${dupe.h.id}">View household</button>` : `<button class="btn primary block" data-a="addHhFromPlace">${ic("plus", 15)} Add as LIRMA household</button>`}`;
   }
   function hhPanel(id) {
     const s = S(), h = Q.hh(s, id), j = Q.jobOfHh(s, id), c = ctrOf(j);
@@ -497,6 +522,25 @@
     return `<div class="page-head"><div><h1>Notifications</h1><p>Programme events from the portal and RadonSketch.</p></div><button class="btn ghost" data-a="markAllRead">${ic("check", 15)} Mark all as read</button></div>
       <div class="card notif">${s.notifications.map((n) => `<button class="nt ${n.unread ? "unread" : ""}${hl("nt-" + n.id)}" data-a="openNotif" data-arg="${n.id}"><span class="nt-ic t-${n.type}">${ic(icon[n.type] || "bell", 17)}</span><span class="nt-b"><b>${esc(n.text)}</b><small>${Dt.dt(n.at)} · ${Dt.rel(n.at, s.now)}</small></span>${n.unread ? "<i></i>" : ""}${ic("chev-right", 16)}</button>`).join("")}</div>`;
   }
+  function googleCard() {
+    const G = window.GMaps, st = G ? G.status : "off", key = G ? G.key() : "";
+    const pill = { off: ["Not connected", "none"], loading: ["Connecting…", "soon"], ready: ["Connected", "valid"], failed: ["Problem", "expired"] }[st];
+    return card(`Google Maps Platform <small>real street map and address search</small>`, `
+      <div class="gk-row"><span class="cred ${pill[1]}">${pill[0]}</span>${key ? `<span class="mono">${esc(G.masked())}</span><small class="muted">${G.keySource() === "browser" ? "saved in this browser" : "set in data.js"}</small>` : `<small class="muted">No key saved</small>`}</div>
+      ${st === "failed" ? `<div class="gk-err">${ic("alert", 15)}<span>${esc(G.reason)}</span></div>` : ""}
+      <div class="gk-grid">
+        <div>
+          <label class="field"><span>${key ? "Replace API key" : "API key"}</span><span class="gk-in"><input type="${U().gkShow ? "text" : "password"}" placeholder="Paste your Google Maps Platform API key (starts with AIza…)" value="${esc(U().gkeyDraft || "")}" data-in="field" data-path="gkeyDraft" data-fk="gkey" autocomplete="off" spellcheck="false"><button class="btn ghost sm" data-a="gShow">${U().gkShow ? "Hide" : "Show"}</button></span></label>
+          <div class="btns"><button class="btn primary" data-a="gSave">${ic("check", 15)} Save &amp; connect</button>${key && G.keySource() === "browser" ? `<button class="btn ghost" data-a="gRemove">Remove key</button>` : ""}</div>
+          <p class="gk-note">${ic("lock", 13)} The key is saved only in this browser on this computer (local storage). It isn't written into the prototype files, so files you share don't contain it.</p>
+          <b class="gk-h">What it turns on</b>
+          <ul class="gk-ul"><li>Google street map on every map — still locked to Colorado</li><li>Address and place search on Map View</li><li>Real ZIP code + radius filter for any Colorado ZIP</li><li>Address search when adding a household, with exact map location</li></ul>
+        </div>
+        <div class="gk-steps"><b class="gk-h">Set up the key in Google Cloud Console</b>
+          <ol><li>Enable <b>Maps JavaScript API</b> and <b>Places API (New)</b> for the project.</li><li>Make sure <b>billing</b> is enabled.</li><li>Under <b>API restrictions</b>, limit the key to those two APIs, and set a quota or budget alert.</li><li>Leave <b>Website restrictions</b> off while you open the prototype by double-clicking — a local file has no website address, so Google would block it. Add the restriction once the prototype is hosted on a website.</li></ol>
+          <p class="muted sm">Map ID: <span class="mono">${esc((C.google && C.google.mapId) || "DEMO_MAP_ID")}</span> (Google's test map ID, set in data.js).</p></div>
+      </div>`, "", "span-all");
+  }
   function settingsPage() {
     return `<div class="page-head"><div><h1>Settings</h1><p>Programme configuration for this prototype. Changes apply immediately.</p></div></div>
       <div class="grid g-11">
@@ -513,6 +557,7 @@
       </div>
       ${card("Portal users and roles", `<table class="tbl"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Last sign-in</th></tr></thead><tbody>${C.portalUsers.map((u) => `<tr><td><b>${u.name}</b></td><td>${u.email}</td><td><span class="role">${u.role}</span></td><td>${Dt.dt(u.last)}</td></tr>`).join("")}</tbody></table>
         <div class="roles">${[["Program Coordinator", "Creates households and jobs, assigns contractors, manages contractors and settings."], ["Reviewer/Inspector", "Reviews synced reports, approves or requests corrections, adds notes."], ["Read-only", "Views dashboards, maps, jobs and reports. Cannot change records."]].map(([r, d]) => `<div><b>${r}</b><p>${d}</p></div>`).join("")}</div>`, `<button class="btn ghost sm" data-a="inviteUser">${ic("plus", 14)} Invite user</button>`)}
+      ${googleCard()}
       ${card("RadonSketch integration", `<div class="integ">${logo("radonsketch", "integ-logo")}<div><b>Connected</b><p>Jobs are pushed to contractors' RadonSketch apps; reports, photos and compliance checks sync back automatically.</p><small>Last sync ${Dt.dt(S().now)} · ${C.timezone}</small></div><span class="cred valid">Healthy</span></div>`)}`;
   }
 
@@ -642,9 +687,14 @@
   function hhModal(m) {
     const f = m.f;
     const fld = (k, l, type = "text", extra = "") => `<label class="field"><span>${l}</span><input type="${type}" value="${esc(f[k] || "")}" data-in="field" data-path="modal.f.${k}" ${extra}></label>`;
+    const G = window.CoMap.usingGoogle(), geo = f.lat != null && f.lat !== "";
+    const addr = G
+      ? `<div class="field span2"><span>Address <small class="muted">· search with Google</small></span>${Pt.taBox("hhaddr", "address", { placeholder: "Start typing a Colorado street address…", value: U().ta.hhaddr || "" })}
+          ${geo ? `<div class="geo-ok">${ic("map-pin", 14)} Location set · ${esc(f.county)} County · <span class="mono">${(+f.lat).toFixed(5)}, ${(+f.lng).toFixed(5)}</span></div>` : `<small class="muted">Pick an address so the household lands on the map in the right place.</small>`}</div>
+         ${fld("street", "Street address")}${fld("city", "City")}`
+      : `${fld("street", "Street address")}<label class="field"><span>City</span><select data-in="field" data-path="modal.f.city">${Object.keys(C.cities).map((c) => `<option ${f.city === c ? "selected" : ""}>${c}</option>`).join("")}</select></label>`;
     return `<header class="m-head"><div><h2>Add household</h2><p>Approved ${esc(C.program.lirmaFull)} household</p></div><button class="x" data-a="closeModal" aria-label="Close">${ic("x", 20)}</button></header>
-      <div class="m-body"><div class="form-g">${fld("name", "Household surname")}${fld("phone", "Phone", "tel")}${fld("street", "Street address")}
-        <label class="field"><span>City</span><select data-in="field" data-path="modal.f.city">${Object.keys(C.cities).map((c) => `<option ${f.city === c ? "selected" : ""}>${c}</option>`).join("")}</select></label>
+      <div class="m-body"><div class="form-g">${fld("name", "Household surname")}${fld("phone", "Phone", "tel")}${addr}
         ${fld("zip", "ZIP code")}${fld("approved", "LIRMA approval date", "date")}${fld("pre", "Pre-mitigation reading (pCi/L)", "number", 'step="0.1"')}
         <label class="field"><span>Foundation type</span><select data-in="field" data-path="modal.f.foundation">${["Basement", "Slab-on-grade", "Crawlspace", "Combination"].map((x) => `<option ${f.foundation === x ? "selected" : ""}>${x}</option>`).join("")}</select></label>
         ${fld("built", "Year built", "number")}${fld("occ", "Occupants", "number")}</div></div>
@@ -716,10 +766,68 @@
     // map
     mapLayer(l) { U().map.layer = l; R(); },
     mapF(v, el) { U().map.f[el.dataset.f] = v; if (el.dataset.f === "zip" && !v) U().map.f.radius = ""; R(); },
-    mapSearch() { U().map.applied = { ...U().map.f }; U().map.sel = null; R(); },
-    mapReset() { U().map.f = { zip: "", radius: "", county: "", ctr: "", status: "", band: "" }; U().map.applied = {}; U().map.sel = null; if (Pt.MAPS.main) Pt.MAPS.main._county = "__"; R(); },
+    async mapSearch() {
+      const m = U().map, f = m.f;
+      if (window.CoMap.usingGoogle()) {
+        const typed = (U().ta.zip || "").trim();
+        if (!typed) { f.zip = ""; f.zipGeo = null; f.radius = ""; }
+        else if (typed !== f.zip || !f.zipGeo) {
+          if (!/^\d{5}$/.test(typed)) { Pt.toast("Enter a 5-digit Colorado ZIP code.", "warn"); return; }
+          try {
+            const sug = await window.GMaps.suggest(typed, "zip");
+            if (!sug.length) { Pt.toast(`ZIP ${typed} wasn't found in Colorado.`, "warn"); return; }
+            const res = await window.GMaps.resolve(sug[0].pred);
+            if (!res.inColorado) { Pt.toast(`ZIP ${typed} is outside Colorado.`, "warn"); return; }
+            f.zip = res.zip || typed; f.zipGeo = { lat: res.lat, lng: res.lng, label: res.formatted }; U().ta.zip = f.zip;
+          } catch (e) { Pt.toast(e.message, "warn"); return; }
+        }
+      }
+      m.applied = { ...f }; if (m.sel && m.sel.type !== "place") m.sel = null; R();
+    },
+    mapReset() { U().map.f = { zip: "", radius: "", county: "", ctr: "", status: "", band: "", zipGeo: null }; U().map.applied = {}; U().map.sel = null; U().map.place = null; U().ta.zip = ""; U().ta.place = ""; if (Pt.MAPS.main) Pt.MAPS.main._county = "__"; R(); },
     mapClearCounty() { U().map.f.county = ""; U().map.applied.county = ""; R(); },
     mapClose() { U().map.sel = null; R(); },
+    mapClearPlace() { const m = U().map; m.place = null; if (m.sel && m.sel.type === "place") m.sel = null; U().ta.place = ""; if (Pt.MAPS.main) { Pt.MAPS.main._county = "__"; Pt.MAPS.main._focusKey = null; } R(); },
+    mapSelectHh(id) { U().map.sel = { type: "household", id }; R(); },
+    taPick(arg) { const [k, i] = arg.split("|"); Pt.taPick(k, +i); },
+    ta_place(res) {
+      if (!res.inColorado) { Pt.toast(`${res.formatted || "That place"} is outside Colorado — the LIRMA programme covers Colorado only.`, "warn"); return; }
+      const m = U().map; m.place = res; m.sel = { type: "place" }; U().ta.place = res.formatted; R();
+    },
+    taEnter_place() { Pt.toast("Pick an address from the list.", "warn"); },
+    ta_zip(res) {
+      if (!res.inColorado) { Pt.toast(`${res.formatted || "That ZIP"} is outside Colorado.`, "warn"); return; }
+      const f = U().map.f; f.zip = res.zip || res.name; f.zipGeo = { lat: res.lat, lng: res.lng, label: res.formatted }; U().ta.zip = f.zip;
+      A.mapSearch();
+    },
+    taEnter_zip() { A.mapSearch(); },
+    addHhFromPlace() {
+      const p = U().map.place; if (!p) return;
+      A.openAddHh();
+      Object.assign(U().modal.f, { street: p.street || p.name, city: p.city, zip: p.zip, county: p.county, lat: p.lat, lng: p.lng });
+      U().ta.hhaddr = p.formatted; R();
+    },
+    ta_hhaddr(res) {
+      if (!res.inColorado) { Pt.toast(`${res.formatted || "That address"} is outside Colorado — only Colorado households qualify.`, "warn"); return; }
+      const m = U().modal; if (!m || m.type !== "hh") return;
+      Object.assign(m.f, { street: res.street || res.name, city: res.city, zip: res.zip, county: res.county, lat: res.lat, lng: res.lng });
+      U().ta.hhaddr = res.formatted; R();
+    },
+    gShow() { U().gkShow = !U().gkShow; R(); },
+    gSave() {
+      const G = window.GMaps, k = (U().gkeyDraft || "").trim();
+      if (!k) { Pt.toast("Paste your API key first.", "warn"); return; }
+      if (!G.looksValid(k)) { Pt.toast("That doesn't look like a Google Maps Platform API key — they start with “AIza”.", "warn"); return; }
+      if (!G.saveKey(k)) { Pt.toast("This browser is blocking local storage, so the key can't be saved.", "warn"); return; }
+      U().gkeyDraft = ""; U().gkShow = false;
+      if (G.loaded()) { try { sessionStorage.setItem("lirma.resume", "settings"); } catch (e) {} location.reload(); return; }
+      G.status = "off"; G.load(); R();
+    },
+    gRemove() {
+      const G = window.GMaps; G.removeKey();
+      if (G.loaded()) { try { sessionStorage.setItem("lirma.resume", "settings"); } catch (e) {} location.reload(); return; }
+      G.status = "off"; G.reason = ""; Pt.resetMaps(); Pt.toast("Google Maps key removed from this browser.");
+    },
     // navigation to records
     openJob(id) { U().modal = { type: "job", id, tab: "details", act: "all" }; U().noteDraft = ""; R(); },
     jobTab(t) { U().modal.tab = t; R(); },
@@ -790,10 +898,11 @@
       U().noteDraft = ""; Pt.toast("Note added.");
     },
     // households & contractors forms
-    openAddHh() { U().modal = { type: "hh", f: { name: "", street: "", city: "Denver", zip: "", phone: "", approved: today(), pre: "", foundation: "Basement", built: "", occ: "" } }; R(); },
+    openAddHh() { U().modal = { type: "hh", f: { name: "", street: "", city: window.CoMap.usingGoogle() ? "" : "Denver", zip: "", phone: "", approved: today(), pre: "", foundation: "Basement", built: "", occ: "", lat: null, lng: null, county: "" } }; U().ta.hhaddr = ""; R(); },
     saveHh() {
       const f = U().modal.f;
       if (!f.name || !f.street) { Pt.toast("Enter a household surname and street address.", "warn"); return; }
+      if (window.CoMap.usingGoogle() && (f.lat == null || f.lat === "")) { Pt.toast("Pick the address from the Google search list so the household has an exact location.", "warn"); return; }
       const h = Ops.addHousehold(S(), f);
       U().modal = null; U().route = { page: "household", id: h.id };
       Pt.toast(`${h.name} added and an unassigned job created.`);

@@ -704,6 +704,49 @@ button.hb:hover .hb-l { color: var(--co-blue); }
 .wf-side-l { position: absolute; display: inline-flex; align-items: center; gap: 6px; }
 .wf-body .disclaimer-wf { position: absolute; right: 24px; top: 70px; font-size: 11px; font-weight: 600; color: var(--ink-2); background: rgba(255, 255, 255, .9); border: 1px dashed #B7C1CF; padding: 3px 10px; border-radius: 999px; }
 
+/* ---------- Google Maps Platform integration ---------- */
+.co-gmap { background: #E5E9EF; }
+.co-gpin { line-height: 0; cursor: pointer; }
+.co-gpin.center { transform: translateY(50%); }
+.co-reset.g { margin: 10px; height: 36px; border: 0; box-shadow: 0 1px 4px rgba(0, 0, 0, .3); border-radius: 4px; }
+.co-county-lbl.g { pointer-events: none; transform: translateY(50%); }
+.co-place-pin { filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .35)); }
+.map-search { position: absolute; left: 12px; top: 12px; z-index: 600; width: 360px; }
+.map-search ~ .map-count { top: 62px; }
+.map-search.off { display: inline-flex; align-items: center; gap: 8px; width: auto; height: 38px; padding: 0 12px; border-radius: 8px; background: rgba(255, 255, 255, .95); border: 1px dashed #9EABBD; font-size: 12.5px; font-weight: 600; color: var(--ink-2); box-shadow: var(--shadow); }
+.map-search.off:hover { border-color: var(--co-blue); color: var(--co-blue); }
+.ta { position: relative; display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 10px; border: 1px solid #CFD7E2; border-radius: 8px; background: #fff; color: var(--muted); }
+.map-search .ta { height: 42px; box-shadow: 0 6px 18px -8px rgba(19, 41, 75, .45); border-color: #B7C3D3; }
+.ta:focus-within { outline: 2px solid color-mix(in srgb, var(--co-blue) 35%, transparent); border-color: var(--co-blue); }
+.ta-in { flex: 1; min-width: 0; border: 0; outline: 0; background: none; color: var(--ink); font-size: 13.5px; }
+.ta-list { position: absolute; left: -1px; right: -1px; top: calc(100% + 4px); z-index: 700; background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 16px 36px -14px rgba(16, 24, 40, .4); padding: 4px; min-width: 300px; }
+.zip-ta .ta-list { min-width: 320px; }
+.ta-i { display: flex; align-items: flex-start; gap: 9px; width: 100%; padding: 8px 10px; border-radius: 7px; text-align: left; color: var(--muted); }
+.ta-i:hover, .ta-i.on { background: var(--co-blue-soft); color: var(--co-blue); }
+.ta-i span { min-width: 0; } .ta-i b { display: block; color: var(--ink); font-size: 13.5px; font-weight: 600; } .ta-i small { display: block; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ta-msg { padding: 10px 12px; font-size: 13px; color: var(--muted); display: flex; gap: 6px; align-items: flex-start; }
+.ta-msg.err { color: #B22B2B; }
+.ta-foot { display: flex; justify-content: flex-end; gap: 4px; padding: 6px 10px 4px; border-top: 1px solid var(--line-2); font-size: 11px; color: #70757A; }
+.ta-foot b { font-weight: 600; letter-spacing: -.01em; }
+.zip-ta .ta { width: 158px; }
+.g-on { margin-left: 4px; font-size: 10.5px; font-weight: 700; color: #1F7A45; background: var(--ok-soft); padding: 1px 6px; border-radius: 5px; }
+.mp-note { display: flex; gap: 8px; align-items: center; font-size: 12.5px; padding: 9px 11px; border-radius: 9px; background: #FFF8E1; color: #7A5600; }
+.ok-t { color: #1F7A45; font-weight: 600; }
+.field.span2 { grid-column: 1 / -1; }
+.geo-ok { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: #1F7A45; }
+.gk-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.gk-err { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border-radius: 9px; background: var(--bad-soft); color: #8E2A1E; font-size: 13px; margin-bottom: 12px; }
+.gk-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 24px; }
+.gk-in { display: flex; gap: 8px; } .gk-in input { flex: 1; border: 1px solid #CFD7E2; border-radius: 8px; padding: 9px 11px; font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
+.gk-note { display: flex; gap: 6px; font-size: 12px; color: var(--muted); margin: 12px 0 14px; line-height: 1.45; }
+.gk-h { display: block; font-size: 13px; margin-bottom: 6px; }
+.gk-ul { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); display: grid; gap: 3px; }
+.gk-steps { background: #F6F8FB; border-radius: 10px; padding: 14px 16px; }
+.gk-steps ol { margin: 0 0 10px; padding-left: 18px; font-size: 13px; color: var(--ink-2); display: grid; gap: 6px; line-height: 1.45; }
+.gk-steps .sm { font-size: 12px; }
+.cred.none { background: #EEF1F5; color: var(--muted); }
+.field .ta-in, .field .ta-in:focus { border: 0; padding: 0; outline: 0; background: none; }
+
 </style>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" integrity="sha384-eXVCORTRlv4FUUgS/xmOyr66XBVraen8ATNLMESp92FKXLAMiKkerixTiBvXriZr" crossorigin="anonymous"></script>
@@ -769,6 +812,12 @@ window.CONFIG = {
   // Note: OpenStreetMap's own tile server (tile.openstreetmap.org) blocks pages opened from a local
   // file ("Access blocked"), so the defaults are OSM-based providers that allow it.
   // For production, the state would use its own licensed tile service.
+  // Google Maps Platform (optional). Leave apiKey EMPTY: the key is entered in the portal under
+  // Settings → Google Maps Platform and saved only in that browser, so shared files never contain it.
+  // Needs "Maps JavaScript API" + "Places API (New)". "DEMO_MAP_ID" is Google's test map ID —
+  // create your own Map ID in Google Cloud Console for production.
+  google: { apiKey: "", mapId: "DEMO_MAP_ID" },
+
   map: {
     tiles: [
       {
@@ -1417,9 +1466,13 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
     },
     close(S, jobId, at) { const job = Q.job(S, jobId); job.status = "closed"; job.closedAt = at; Ops.event(job, at, "programme", "archive", "Job closed", "Job closed by the programme."); },
     addHousehold(S, f) {
-      const city = C.cities[f.city], r = rng(f.name + f.street);
+      const r = rng(f.name + f.street), geo = f.lat != null && f.lat !== "" && f.lng != null && f.lng !== "";
+      // real address (Google Places): exact coordinates; otherwise near the chosen sample city
+      const nearest = geo ? Object.entries(C.cities).sort((x, y) => miles([+f.lat, +f.lng], [x[1].lat, x[1].lng]) - miles([+f.lat, +f.lng], [y[1].lat, y[1].lng]))[0] : null;
+      const city = C.cities[f.city] || (nearest ? nearest[1] : C.cities.Denver);
       const id = `HH-2026-${String(418 + S.households.length - 40).padStart(4, "0")}`;
-      const hh = { id, name: `${f.name} Household`, surname: f.name, street: f.street, city: f.city, county: city.county, zip: f.zip || "", lat: +(city.lat + (r() - 0.5) * 0.05).toFixed(5), lng: +(city.lng + (r() - 0.5) * 0.06).toFixed(5), phone: f.phone || `(${city.area}) 555-0198`, approved: f.approved || Dt.date(S.now), pre: +f.pre || 6.0, foundation: f.foundation || "Basement", built: +f.built || 1970, occ: +f.occ || 2, sump: f.foundation !== "Slab-on-grade" };
+      const hh = { id, name: `${f.name} Household`, surname: f.name, street: f.street, city: f.city || (nearest ? nearest[0] : "Denver"), county: f.county || city.county, zip: f.zip || "",
+        lat: geo ? +(+f.lat).toFixed(6) : +(city.lat + (r() - 0.5) * 0.05).toFixed(5), lng: geo ? +(+f.lng).toFixed(6) : +(city.lng + (r() - 0.5) * 0.06).toFixed(5), phone: f.phone || `(${city.area}) 555-0198`, approved: f.approved || Dt.date(S.now), pre: +f.pre || 6.0, foundation: f.foundation || "Basement", built: +f.built || 1970, occ: +f.occ || 2, sump: f.foundation !== "Slab-on-grade" };
       S.households.push(hh);
       const job = { id: Ops.newJobId(S), hh: id, ctr: null, status: "unassigned", createdAt: S.now, reports: [], notes: [], events: [], live: {}, photos: 0, post: null, funded: 1950, priority: "Standard", instructions: "", bom: makeBom(hh, r) };
       Ops.event(job, S.now, "programme", "plus", "Job created", `Household approved for ${C.program.lirma}; installation job opened.`);
@@ -1441,8 +1494,10 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
      state, county outlines and labels, clustered status pins, "Reset to Colorado".
    • Offline fallback (Leaflet not loaded): an SVG map of Colorado with county
      outlines, the same pins, zoom/pan locked to the state and the same controls.
+   • With a Google Maps Platform key connected (Settings): Google Maps with the
+     same Colorado-only rules (see shared/google.js).
    API: CoMap.create(el, opts) → { root, setPins, fitCounty, reset, setTracking,
-        invalidate, highlightCounty }
+        invalidate, highlightCounty, focus, showRadius }
    =========================================================================== */
 (function () {
   const GEO = window.CO_GEO;
@@ -1464,6 +1519,20 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
   function ctrPin(active, selected) {
     return `<div class="co-ctr-pin ${active ? "active" : ""} ${selected ? "sel" : ""}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17h2l1.2-4.5h11.6L19 17h2"/><path d="M6.2 12.5 8 6h8l1.8 6.5"/><circle cx="7.5" cy="18" r="1.6"/><circle cx="16.5" cy="18" r="1.6"/></svg></div>`;
   }
+  function placePin() {
+    return `<svg class="co-place-pin" width="32" height="42" viewBox="0 0 32 42" aria-hidden="true"><path d="M16 41S2 26 2 16a14 14 0 1 1 28 0c0 10-14 25-14 25z" fill="#1D5FAD" stroke="#fff" stroke-width="2.5"/><circle cx="16" cy="16" r="6.5" fill="#fff"/><circle cx="16" cy="16" r="3" fill="#1D5FAD"/></svg>`;
+  }
+  const inRing = (lat, lng, ring) => {
+    let inside = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const [yi, xi] = ring[i], [yj, xj] = ring[j];
+      if (yi > lat !== yj > lat && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) inside = !inside;
+    }
+    return inside;
+  };
+  const inColorado = (lat, lng) => inRing(lat, lng, STATE);
+  const countyAt = (lat, lng) => { const c = GEO.counties.find((k) => k.rings.some((r) => inRing(lat, lng, r))); return c ? c.name : null; };
+  const pinHtml = (p) => (p.type === "contractor" ? ctrPin(p.active, p.selected) : p.type === "place" ? placePin() : housePin(p.color, p.selected));
   const TARGET_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>`;
 
   /* =========================================================================
@@ -1573,10 +1642,11 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
     pins.forEach((p) => {
       const icon = p.type === "contractor"
         ? L.divIcon({ className: "co-leaf-icon", html: ctrPin(p.active, p.selected), iconSize: [30, 30], iconAnchor: [15, 15] })
+        : p.type === "place" ? L.divIcon({ className: "co-leaf-icon", html: placePin(), iconSize: [32, 42], iconAnchor: [16, 41] })
         : L.divIcon({ className: "co-leaf-icon", html: housePin(p.color, p.selected), iconSize: [28, 38], iconAnchor: [14, 37] });
-      const m = L.marker([p.lat, p.lng], { icon, title: p.title || "", riseOnHover: true, zIndexOffset: p.selected ? 1000 : p.type === "contractor" ? 500 : 0 });
+      const m = L.marker([p.lat, p.lng], { icon, title: p.title || "", riseOnHover: true, zIndexOffset: p.type === "place" ? 1500 : p.selected ? 1000 : p.type === "contractor" ? 500 : 0 });
       m.on("click", () => this.opts.onSelect && this.opts.onSelect(p));
-      (p.type === "contractor" || p.selected ? this.markers : this.cluster).addLayer(m);
+      (p.type !== "household" || p.selected ? this.markers : this.cluster).addLayer(m);
     });
   };
   LeafletMap.prototype.highlightCounty = function (name) {
@@ -1589,6 +1659,13 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
     if (!c) return this.reset();
     this.map.fitBounds(c.bbox, { padding: [30, 30], maxZoom: 11 });
     this.highlightCounty(name);
+  };
+  LeafletMap.prototype.focus = function (lat, lng, zoom) { this.map.setView([lat, lng], Math.max(zoom || 14, this.map.getMinZoom())); };
+  LeafletMap.prototype.showRadius = function (center, miles) {
+    if (this.circle) { this.map.removeLayer(this.circle); this.circle = null; }
+    if (!center) return;
+    this.circle = this.L.circle(center, { radius: miles * 1609.34, color: "#1D5FAD", weight: 1.5, fillOpacity: 0.06, interactive: false }).addTo(this.map);
+    this.map.fitBounds(this.circle.getBounds(), { padding: [20, 20] });
   };
   LeafletMap.prototype.setTracking = function (t) {
     const L = this.L, map = this.map;
@@ -1716,6 +1793,12 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
     this.highlightCounty(name);
   };
   SvgMap.prototype.setPins = function (pins) { this.pins = pins; this._draw(); };
+  SvgMap.prototype.focus = function (lat, lng) { const x = X(lng), y = Y(lat); this._fit(x - 8, y - 5, 16, 10); };
+  SvgMap.prototype.showRadius = function (center, miles) {
+    if (!center) return;
+    const dLat = miles / 69, dLng = miles / (69 * Math.cos((center[0] * Math.PI) / 180));
+    this._fit(X(center[1] - dLng), Y(center[0] + dLat), X(center[1] + dLng) - X(center[1] - dLng), Y(center[0] - dLat) - Y(center[0] + dLat));
+  };
   SvgMap.prototype._draw = function () {
     if (!this.v) return;
     const px = this.v.w / (this.svg.getBoundingClientRect().width || 600); // user units per screen pixel
@@ -1744,7 +1827,7 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
       const s = (p.selected ? 1.2 : 1) * px;
       html += p.type === "contractor"
         ? `<g class="co-svg-pin ctr ${p.active ? "active" : ""}" data-i="${i}" transform="translate(${x},${y}) scale(${s})"><circle r="14" class="co-svg-ctr"/><path d="M-7 4h2l1.2-4.5h7.6L5 4h2M-4.8-.5-3-7h6l1.8 6.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><title>${p.title || ""}</title></g>`
-        : `<g class="co-svg-pin" data-i="${i}" transform="translate(${x},${y}) scale(${s})"><path d="M0 0C0 0-12-13.5-12-23a12 12 0 1 1 24 0C12-13.5 0 0 0 0z" fill="${p.color}" stroke="#fff" stroke-width="2"/><path d="M-5.8-22.4 0-27.4l5.8 5v5.6h-11.6z" fill="#fff"/><title>${p.title || ""}</title></g>`;
+        : `<g class="co-svg-pin" data-i="${i}" transform="translate(${x},${y}) scale(${s})"><path d="M0 0C0 0-12-13.5-12-23a12 12 0 1 1 24 0C12-13.5 0 0 0 0z" fill="${p.type === "place" ? "#1D5FAD" : p.color}" stroke="#fff" stroke-width="2"/>${p.type === "place" ? '<circle cy="-23" r="5" fill="#fff"/>' : '<path d="M-5.8-22.4 0-27.4l5.8 5v5.6h-11.6z" fill="#fff"/>'}<title>${p.title || ""}</title></g>`;
     });
     this.gPins.innerHTML = html;
     this._drawTrack(px);
@@ -1783,17 +1866,278 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
     }
   };
 
+  /* =========================================================================
+     Google Maps engine (used when a Google Maps Platform key is connected)
+     Same Colorado-only rules: restricted to the state, can't zoom out past
+     the whole state, grey mask outside, county outlines + labels, clustering.
+     ========================================================================= */
+  const merc = (lat, lng) => { const s = Math.sin((lat * Math.PI) / 180); return [((lng + 180) / 360) * 256, (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * 256]; };
+  const ll = (a) => ({ lat: a[0], lng: a[1] });
+  const signedArea = (ring) => ring.reduce((a, p, i) => { const q = ring[(i + 1) % ring.length]; return a + (p[1] * q[0] - q[1] * p[0]); }, 0);
+  function GoogleMap(root, opts) {
+    const g = google.maps;
+    this.g = g; this.root = root; this.opts = opts; this.isGoogle = true; this.markers = []; this.trackObjs = [];
+    root.classList.add("co-gmap");
+    const [[s, w], [n, e]] = CO_BOUNDS, dLat = (n - s) * 0.03, dLng = (e - w) * 0.03;
+    const cfg = (window.CONFIG && window.CONFIG.google) || {};
+    const map = (this.map = new g.Map(root, {
+      mapId: cfg.mapId || "DEMO_MAP_ID",
+      center: { lat: (s + n) / 2, lng: (w + e) / 2 }, zoom: 6,
+      restriction: { latLngBounds: { south: s - dLat, west: w - dLng, north: n + dLat, east: e + dLng }, strictBounds: false },
+      disableDefaultUI: true, zoomControl: !opts.mini, clickableIcons: false,
+      gestureHandling: opts.mini ? "cooperative" : "greedy", keyboardShortcuts: !opts.mini,
+    }));
+    // grey mask outside Colorado (outer box with the state as a hole — opposite winding)
+    const box = [[s - 25, w - 30], [n + 25, w - 30], [n + 25, e + 30], [s - 25, e + 30]];
+    let hole = STATE.slice();
+    if (Math.sign(signedArea(box)) === Math.sign(signedArea(hole))) hole = hole.reverse();
+    new g.Polygon({ map, paths: [box.map(ll), hole.map(ll)], strokeOpacity: 0, fillColor: "#5B6472", fillOpacity: 0.45, clickable: false, zIndex: 1 });
+    this.countyPolys = {};
+    GEO.counties.forEach((c) => {
+      this.countyPolys[c.name] = new g.Polygon({ map, paths: c.rings.map((r) => r.map(ll)), strokeColor: "#5E6B7E", strokeWeight: 0.8, strokeOpacity: 0.75, fillOpacity: 0, clickable: false, zIndex: 2 });
+    });
+    new g.Polygon({ map, paths: STATE.map(ll), strokeColor: "#13294B", strokeWeight: 2.6, fillOpacity: 0, clickable: false, zIndex: 3 });
+    this.labels = opts.labels ? GEO.counties.map((c) => {
+      const el = document.createElement("div"); el.className = "co-county-lbl g"; el.innerHTML = `<span>${c.name}</span>`;
+      return new g.marker.AdvancedMarkerElement({ position: ll(c.center), content: el, zIndex: 5 });
+    }) : [];
+    // "Reset to Colorado" control
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "co-reset g"; b.title = "Reset to Colorado"; b.setAttribute("aria-label", "Reset to Colorado");
+    b.innerHTML = TARGET_SVG + (opts.mini ? "" : "<span>Colorado</span>");
+    b.addEventListener("click", (ev) => { ev.stopPropagation(); this.reset(); if (opts.onReset) opts.onReset(); });
+    map.controls[g.ControlPosition.RIGHT_TOP].push(b);
+    map.addListener("idle", () => { const z = map.getZoom(); if (z !== this._z) { this._z = z; this._cluster(); this._labels(); } });
+    this.reset();
+  }
+  GoogleMap.prototype._fitZoom = function () {
+    const r = this.root.getBoundingClientRect(), pad = this.opts.mini ? 8 : 24;
+    if (!r.width || !r.height) return 6;
+    const [[s, w], [n, e]] = CO_BOUNDS, [x0, y0] = merc(n, w), [x1, y1] = merc(s, e);
+    return Math.max(3, Math.floor(Math.min(Math.log2((r.width - pad * 2) / (x1 - x0)), Math.log2((r.height - pad * 2) / (y1 - y0)))));
+  };
+  GoogleMap.prototype._labels = function () {
+    const show = this.map.getZoom() <= (this._minZ || 6) + 2;
+    this.labels.forEach((m) => { if (!!m.map !== show) m.map = show ? this.map : null; });
+  };
+  GoogleMap.prototype.reset = function () {
+    const [[s, w], [n, e]] = CO_BOUNDS;
+    this._minZ = this._fitZoom();
+    this.map.setOptions({ minZoom: this._minZ });
+    this.map.setCenter({ lat: (s + n) / 2, lng: (w + e) / 2 });
+    this.map.setZoom(this._minZ);
+    this.highlightCounty(null);
+  };
+  GoogleMap.prototype.invalidate = function () {
+    const z = this._fitZoom();
+    if (z !== this._minZ) { this._minZ = z; this.map.setOptions({ minZoom: z }); if (this.map.getZoom() < z) this.reset(); }
+  };
+  GoogleMap.prototype.setPins = function (pins) {
+    const sig = JSON.stringify(pins);
+    if (sig === this._sig) return;
+    this._sig = sig; this.pins = pins; this._cluster();
+  };
+  GoogleMap.prototype._marker = function (lat, lng, html, opt = {}) {
+    const el = document.createElement("div");
+    el.className = "co-gpin" + (opt.center ? " center" : "");
+    el.innerHTML = html;
+    const m = new this.g.marker.AdvancedMarkerElement({ map: this.map, position: { lat, lng }, content: el, title: opt.title || "", zIndex: opt.z || 100 });
+    if (opt.onClick) m.addListener("click", opt.onClick);
+    return m;
+  };
+  GoogleMap.prototype._cluster = function () {
+    const zoom = this.map.getZoom();
+    if (zoom == null || !this.pins) return;
+    this.markers.forEach((m) => (m.map = null));
+    this.markers = [];
+    const scale = Math.pow(2, zoom), cell = this.opts.mini ? 34 : 46, groups = {}, singles = [];
+    this.pins.forEach((p) => {
+      if (p.type !== "household" || p.selected || this.opts.cluster === false || zoom >= 12) { singles.push(p); return; }
+      const [x, y] = merc(p.lat, p.lng), k = Math.floor((x * scale) / cell) + ":" + Math.floor((y * scale) / cell);
+      (groups[k] = groups[k] || []).push(p);
+    });
+    Object.values(groups).forEach((gr) => {
+      if (gr.length === 1) { singles.push(gr[0]); return; }
+      const lat = gr.reduce((a, p) => a + p.lat, 0) / gr.length, lng = gr.reduce((a, p) => a + p.lng, 0) / gr.length;
+      this.markers.push(this._marker(lat, lng, `<div class="co-cluster"><span>${gr.length}</span></div>`, { center: true, z: 400, title: `${gr.length} households`, onClick: () => {
+        const b = new this.g.LatLngBounds(); gr.forEach((p) => b.extend({ lat: p.lat, lng: p.lng })); this.map.fitBounds(b, 80);
+      } }));
+    });
+    singles.forEach((p) => this.markers.push(this._marker(p.lat, p.lng, pinHtml(p), {
+      center: p.type === "contractor", title: p.title, z: p.type === "place" ? 1500 : p.selected ? 1000 : p.type === "contractor" ? 500 : 100,
+      onClick: () => this.opts.onSelect && this.opts.onSelect(p),
+    })));
+  };
+  GoogleMap.prototype.highlightCounty = function (name) {
+    Object.entries(this.countyPolys).forEach(([k, poly]) => poly.setOptions(k === name
+      ? { strokeColor: "#1D5FAD", strokeWeight: 2.6, strokeOpacity: 1, fillColor: "#1D5FAD", fillOpacity: 0.06 }
+      : { strokeColor: "#5E6B7E", strokeWeight: 0.8, strokeOpacity: 0.75, fillOpacity: 0 }));
+  };
+  GoogleMap.prototype.fitCounty = function (name) {
+    const c = countyByName[name];
+    if (!c) return this.reset();
+    const [[s, w], [n, e]] = c.bbox;
+    this.map.fitBounds({ south: s, west: w, north: n, east: e }, 30);
+    this.highlightCounty(name);
+  };
+  GoogleMap.prototype.focus = function (lat, lng, zoom) { this.map.setCenter({ lat, lng }); this.map.setZoom(Math.max(zoom || 14, this._minZ || 6)); };
+  GoogleMap.prototype.showRadius = function (center, miles) {
+    if (this.circle) { this.circle.setMap(null); this.circle = null; }
+    if (!center) return;
+    this.circle = new this.g.Circle({ map: this.map, center: ll(center), radius: miles * 1609.34, strokeColor: "#1D5FAD", strokeWeight: 1.5, fillColor: "#1D5FAD", fillOpacity: 0.06, clickable: false, zIndex: 4 });
+    this.map.fitBounds(this.circle.getBounds(), 20);
+  };
+  GoogleMap.prototype.setTracking = function (t) {
+    cancelAnimationFrame(this._raf);
+    this.trackObjs.forEach((o) => (o.setMap ? o.setMap(null) : (o.map = null)));
+    this.trackObjs = [];
+    if (!t) return;
+    this.trackObjs.push(this._marker(t.home[0], t.home[1], housePin(t.color || "#E08A00", true), { z: 900 }));
+    if (!t.contractor) { this.map.setCenter(ll(t.home)); this.map.setZoom(14); return; }
+    const start = t.animate ? t.from : t.contractor;
+    const dot = this._marker(start[0], start[1], '<div class="co-live-dot"></div>', { center: true, z: 2000 });
+    const line = new this.g.Polyline({ map: this.map, path: [ll(t.from), ll(start)], strokeOpacity: 0, zIndex: 6,
+      icons: [{ icon: { path: "M 0,-1 0,1", strokeOpacity: 0.9, strokeColor: "#1D5FAD", scale: 3 }, offset: "0", repeat: "12px" }] });
+    this.trackObjs.push(dot, line);
+    const b = new this.g.LatLngBounds(); b.extend(ll(t.home)); b.extend(ll(t.from));
+    this.map.fitBounds(b, 70);
+    if (t.animate) {
+      const t0 = performance.now(), dur = 3600;
+      const step = (now) => {
+        const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+        const p = { lat: t.from[0] + (t.contractor[0] - t.from[0]) * e, lng: t.from[1] + (t.contractor[1] - t.from[1]) * e };
+        dot.position = p; line.setPath([ll(t.from), p]);
+        if (k < 1) this._raf = requestAnimationFrame(step);
+      };
+      this._raf = requestAnimationFrame(step);
+    }
+  };
+
   window.CoMap = {
     bounds: CO_BOUNDS,
     counties: GEO.counties.map((c) => c.name),
     countyOf: (name) => countyByName[name],
-    housePin, ctrPin,
+    inColorado, countyAt,
+    housePin, ctrPin, placePin,
+    usingGoogle: () => !!(window.GMaps && window.GMaps.ready() && !window.CoMap.forceFallback),
     usingLeaflet: () => !!(window.L && window.L.map && !window.CoMap.forceFallback),
+    engine() { return this.usingGoogle() ? "google" : this.usingLeaflet() ? "leaflet" : "svg"; },
     forceFallback: false,
     create(el, opts = {}) {
+      if (this.usingGoogle()) { try { return new GoogleMap(el, opts); } catch (e) { console.error("Google map failed, using fallback", e); } }
       return this.usingLeaflet() ? new LeafletMap(el, opts) : new SvgMap(el, opts);
     },
   };
+})();
+
+</script>
+  <script>
+/* shared/google.js */
+/* ===========================================================================
+   GMaps — optional Google Maps Platform integration (Maps JavaScript API +
+   Places API (New)).
+
+   The API key is NEVER stored in these files. It is entered in the portal
+   (Settings → Google Maps Platform) and saved only in that browser's
+   localStorage on that computer. Files you share don't contain it.
+
+   status: "off" (no key) · "loading" · "ready" · "failed" (reason in .reason)
+   =========================================================================== */
+(function () {
+  const C = window.CONFIG;
+  const LS = "lirma.google.apiKey";
+  const G = { status: "off", reason: "", listeners: [] };
+
+  const readLS = () => { try { return localStorage.getItem(LS) || ""; } catch (e) { return ""; } };
+  G.key = () => readLS() || (C.google && C.google.apiKey) || "";
+  G.keySource = () => (readLS() ? "browser" : C.google && C.google.apiKey ? "config" : "none");
+  G.masked = () => { const k = G.key(); return k ? `${k.slice(0, 4)}••••••••••${k.slice(-4)}` : ""; };
+  G.saveKey = (k) => { try { localStorage.setItem(LS, String(k).trim()); return true; } catch (e) { return false; } };
+  G.removeKey = () => { try { localStorage.removeItem(LS); } catch (e) {} };
+  G.ready = () => G.status === "ready";
+  G.loaded = () => !!(window.google && window.google.maps && window.google.maps.Map);
+  G.looksValid = (k) => /^AIza[0-9A-Za-z_\-]{30,}$/.test(String(k).trim());
+  G.on = (fn) => G.listeners.push(fn);
+  const emit = () => G.listeners.slice().forEach((fn) => { try { fn(G.status, G.reason); } catch (e) { console.error(e); } });
+
+  let timer = null;
+  G.fail = (reason) => {
+    if (G.status === "failed" && G.reason === reason) return;
+    clearTimeout(timer);
+    G.status = "failed"; G.reason = reason;
+    emit();
+  };
+  // Called by Google when the key is rejected (wrong key, billing off, API not enabled, referrer not allowed…)
+  window.gm_authFailure = () => G.fail("Google rejected the API key. Check the key, that billing is enabled, and that the Maps JavaScript API is enabled and allowed by the key's restrictions.");
+
+  G.load = () => {
+    if (!G.key()) { G.status = "off"; G.reason = ""; emit(); return; }
+    if (G.status === "loading" || G.status === "ready") return;
+    if (G.loaded()) { G.status = "ready"; emit(); return; }
+    G.status = "loading"; G.reason = ""; emit();
+    window.__lirmaGoogleReady = async () => {
+      try {
+        await Promise.all(["maps", "marker", "places"].map((l) => google.maps.importLibrary(l)));
+        if (G.status !== "loading") return;
+        clearTimeout(timer);
+        G.status = "ready"; emit();
+      } catch (e) { G.fail("Google Maps libraries could not load: " + ((e && e.message) || e)); }
+    };
+    const s = document.createElement("script");
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(G.key())}&v=weekly&loading=async&libraries=maps,marker,places&callback=__lirmaGoogleReady`;
+    s.async = true;
+    s.onerror = () => G.fail("Couldn't reach Google Maps — check the internet connection.");
+    document.head.appendChild(s);
+    timer = setTimeout(() => G.fail("Google Maps didn't respond within 15 seconds."), 15000);
+  };
+
+  /* ---------- Places API (New) ---------- */
+  const coRect = () => { const [[s, w], [n, e]] = window.CoMap.bounds; return { south: s, west: w, north: n, east: e }; };
+  let token = null;
+  const placeErr = (e) => {
+    const msg = (e && (e.message || e.toString())) || "Unknown error";
+    return new Error(/not been used|disabled|PERMISSION_DENIED|not authorized|API key/i.test(msg)
+      ? `Places request refused — enable “Places API (New)” for this key in Google Cloud and allow it in the key's API restrictions. (${msg})`
+      : `Places search failed: ${msg}`);
+  };
+  // kind: "place" (any address or place) · "address" (street addresses) · "zip" (postal codes)
+  G.suggest = async (input, kind) => {
+    const { AutocompleteSuggestion, AutocompleteSessionToken } = await google.maps.importLibrary("places");
+    if (!token) token = new AutocompleteSessionToken();
+    const base = { input, sessionToken: token, includedRegionCodes: ["us"], locationRestriction: coRect() };
+    const types = { zip: ["postal_code"], address: ["street_address", "premise", "subpremise"] }[kind];
+    let res;
+    try { res = await AutocompleteSuggestion.fetchAutocompleteSuggestions(types ? { ...base, includedPrimaryTypes: types } : base); }
+    catch (e) {
+      if (!types) throw placeErr(e);
+      try { res = await AutocompleteSuggestion.fetchAutocompleteSuggestions(base); } catch (e2) { throw placeErr(e2); }
+    }
+    return (res.suggestions || []).filter((s) => s.placePrediction).slice(0, 6).map((s) => {
+      const p = s.placePrediction;
+      return { pred: p, main: p.mainText ? p.mainText.text : p.text.text, secondary: p.secondaryText ? p.secondaryText.text : "", text: p.text.text };
+    });
+  };
+  G.resolve = async (pred) => {
+    const place = pred.toPlace();
+    try { await place.fetchFields({ fields: ["displayName", "formattedAddress", "location", "addressComponents", "types"] }); }
+    catch (e) { throw placeErr(e); }
+    token = null; // a selection ends the autocomplete session (billing best practice)
+    const comps = place.addressComponents || [];
+    const comp = (t, short) => { const c = comps.find((x) => (x.types || []).includes(t)); return c ? (short ? c.shortText : c.longText) : ""; };
+    const lat = place.location.lat(), lng = place.location.lng();
+    const geoCounty = window.CoMap.countyAt(lat, lng);
+    return {
+      lat, lng, formatted: place.formattedAddress || "", name: place.displayName || "",
+      street: [comp("street_number"), comp("route")].filter(Boolean).join(" "),
+      city: comp("locality") || comp("postal_town") || comp("sublocality") || comp("administrative_area_level_3") || comp("neighborhood"),
+      zip: comp("postal_code"), state: comp("administrative_area_level_1", true),
+      county: geoCounty || comp("administrative_area_level_2").replace(/ County$/, ""),
+      inColorado: comp("administrative_area_level_1", true) === "CO" && window.CoMap.inColorado(lat, lng),
+      types: place.types || [],
+    };
+  };
+
+  window.GMaps = G;
 })();
 
 </script>
@@ -2018,8 +2362,8 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
   const freshUI = () => ({
     route: { page: "login" }, modal: null, tables: {}, toasts: [], period: "month",
     custom: { from: "2026-11-01", to: "2026-11-30" },
-    map: { layer: "both", f: { zip: "", radius: "", county: "", ctr: "", status: "", band: "" }, applied: {}, sel: null },
-    highlight: [], menu: null, cal: {}, ctrTab: "details", metricsRange: "all", projToggle: "current", reportTab: "pending",
+    map: { layer: "both", f: { zip: "", radius: "", county: "", ctr: "", status: "", band: "", zipGeo: null }, applied: {}, sel: null, place: null },
+    highlight: [], menu: null, cal: {}, ta: {}, gkeyDraft: "", gkShow: false, ctrTab: "details", metricsRange: "all", projToggle: "current", reportTab: "pending",
   });
 
   /* ---------- helpers ---------- */
@@ -2097,8 +2441,76 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
       const county = d.county || null;
       if (county !== m._county) { m._county = county; county ? m.fitCounty(county) : m.reset(); }
       if ((d.trackKey || null) !== (m._trackKey || null)) { m._trackKey = d.trackKey || null; m.setTracking(d.tracking || null); }
+      const rk = d.radius ? d.radius.key : null;
+      if (rk !== (m._radiusKey || null)) { m._radiusKey = rk; if (m.showRadius) m.showRadius(d.radius ? d.radius.center : null, d.radius ? d.radius.miles : 0); }
+      const fk = d.focus ? d.focus.key : null;
+      if (fk !== (m._focusKey || null)) { m._focusKey = fk; if (d.focus && m.focus) m.focus(d.focus.lat, d.focus.lng, d.focus.zoom); }
     });
   }
+  Portal.resetMaps = function () {
+    Object.values(Portal.MAPS).forEach((m) => {
+      try { if (!m.isGoogle && m.map && m.map.remove) m.map.remove(); } catch (e) {}
+      if (m.root) m.root.remove();
+    });
+    Portal.MAPS = {};
+  };
+
+  /* ---------- address typeahead (Google Places) ---------- */
+  const TA = { items: {}, idx: {}, timers: {}, seq: {} };
+  Portal.taBox = function (key, kind, { placeholder = "", value = "" } = {}) {
+    return `<div class="ta" data-ta-box="${key}">${ic("search", 15)}<input class="ta-in" type="search" data-ta="${key}" data-kind="${kind}" data-fk="ta-${key}" value="${esc(value)}" placeholder="${esc(placeholder)}" autocomplete="off" spellcheck="false" aria-autocomplete="list">
+      <div class="ta-list" data-ta-list="${key}" hidden></div></div>`;
+  };
+  const taList = (key, html) => { const el = Portal.root.querySelector(`[data-ta-list="${key}"]`); if (!el) return; el.innerHTML = html; el.hidden = !html; };
+  const taFoot = `<div class="ta-foot">powered by <b><span style="color:#4285F4">G</span><span style="color:#EA4335">o</span><span style="color:#FBBC05">o</span><span style="color:#4285F4">g</span><span style="color:#34A853">l</span><span style="color:#EA4335">e</span></b></div>`;
+  function taRender(key) {
+    const items = TA.items[key] || [], idx = TA.idx[key] || 0;
+    taList(key, items.length
+      ? items.map((it, i) => `<button type="button" class="ta-i ${i === idx ? "on" : ""}" data-a="taPick" data-arg="${key}|${i}">${ic("map-pin", 15)}<span><b>${esc(it.main)}</b><small>${esc(it.secondary)}</small></span></button>`).join("") + taFoot
+      : `<div class="ta-msg">No matches in Colorado.</div>${taFoot}`);
+  }
+  Portal.taInput = function (el) {
+    const key = el.dataset.ta, kind = el.dataset.kind, q = el.value;
+    Portal.UI.ta[key] = q;
+    clearTimeout(TA.timers[key]);
+    if (q.trim().length < 3 || !window.GMaps || !window.GMaps.ready()) { TA.items[key] = []; taList(key, ""); return; }
+    taList(key, `<div class="ta-msg">Searching…</div>${taFoot}`);
+    const seq = (TA.seq[key] = (TA.seq[key] || 0) + 1);
+    TA.timers[key] = setTimeout(async () => {
+      try {
+        const items = await window.GMaps.suggest(q.trim(), kind);
+        if (seq !== TA.seq[key]) return;
+        TA.items[key] = items; TA.idx[key] = 0; taRender(key);
+      } catch (e) {
+        if (seq !== TA.seq[key]) return;
+        TA.items[key] = []; taList(key, `<div class="ta-msg err">${ic("alert", 14)} ${esc(e.message)}</div>`);
+      }
+    }, 220);
+  };
+  Portal.taPick = async function (key, i) {
+    const it = (TA.items[key] || [])[+i];
+    if (!it) return;
+    taList(key, `<div class="ta-msg">Loading ${esc(it.main)}…</div>`);
+    try {
+      const res = await window.GMaps.resolve(it.pred);
+      TA.items[key] = []; taList(key, "");
+      const fn = window.PortalActions["ta_" + key];
+      if (fn) fn(res, it);
+    } catch (e) { taList(key, ""); Portal.toast(e.message, "warn"); }
+  };
+  Portal.taKey = function (e) {
+    const el = e.target, key = el.dataset.ta, items = TA.items[key] || [];
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      if (!items.length) return;
+      e.preventDefault();
+      TA.idx[key] = ((TA.idx[key] || 0) + (e.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+      taRender(key);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (items.length) Portal.taPick(key, TA.idx[key] || 0);
+      else if (window.PortalActions["taEnter_" + key]) window.PortalActions["taEnter_" + key](el.value);
+    } else if (e.key === "Escape") { TA.items[key] = []; taList(key, ""); }
+  };
   Portal.onMapReset = function (key) {
     if (key === "main" && Portal.UI.map.applied.county) { Portal.UI.map.applied.county = ""; Portal.UI.map.f.county = ""; Portal.MAPS.main._county = null; Portal.render(); }
   };
@@ -2131,6 +2543,7 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
     attachMaps();
     root.querySelectorAll("[data-scroll]").forEach((el) => { if (scrolls[el.dataset.scroll] != null) el.scrollTop = scrolls[el.dataset.scroll]; });
     if (fk) { const el = root.querySelector(`[data-fk="${fk}"]`); if (el) { el.focus(); try { el.setSelectionRange(caret, caret); } catch (e) {} } }
+    if (fk && fk.startsWith("ta-") && (TA.items[fk.slice(3)] || []).length) taRender(fk.slice(3)); // keep an open suggestion list open
   };
 
   function layout(content) {
@@ -2185,8 +2598,10 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
 
   /* ---------- events ---------- */
   function bind(root) {
+    root.addEventListener("mousedown", (e) => { if (e.target.closest(".ta-list")) e.preventDefault(); });
     root.addEventListener("click", (e) => {
       if (Portal.embedded) return;
+      if (!e.target.closest(".ta")) root.querySelectorAll(".ta-list").forEach((l) => (l.hidden = true));
       const el = e.target.closest("[data-a]");
       if (Portal.UI.menu && !(el && el.dataset.a === "userMenu")) { Portal.UI.menu = null; if (!el) { Portal.render(); return; } }
       if (!el || !root.contains(el)) return;
@@ -2199,6 +2614,7 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
     });
     root.addEventListener("input", (e) => {
       const el = e.target;
+      if (el.dataset.ta) { Portal.taInput(el); return; }
       if (el.dataset.in === "tblQ") { const t = Portal.UI.tables[el.dataset.key]; t.q = el.value; t.page = 1; Portal.render(); }
       else if (el.dataset.in === "field") setPath(el.dataset.path, el.type === "checkbox" ? el.checked : el.value);
       else if (el.dataset.in === "field-r") { setPath(el.dataset.path, el.value); Portal.render(); }
@@ -2208,6 +2624,7 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
       if (el.dataset.ch && window.PortalActions[el.dataset.ch]) window.PortalActions[el.dataset.ch](el.value, el, e);
     });
     root.addEventListener("keydown", (e) => {
+      if (e.target.dataset && e.target.dataset.ta) { Portal.taKey(e); return; }
       if (e.key === "Escape" && Portal.UI.modal && !Portal.embedded) { Portal.UI.modal = null; Portal.render(); }
       if (e.key === "Enter" && e.target.dataset && e.target.dataset.enter) { e.preventDefault(); window.PortalActions[e.target.dataset.enter](); }
     });
@@ -2229,7 +2646,18 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
     if (opts.route) Portal.UI.route = opts.route;
     Object.entries(C.colors).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
     bind(root);
+    if (!Portal.embedded) { try { if (sessionStorage.getItem("lirma.resume") === "settings") { Portal.UI.route = { page: "settings" }; sessionStorage.removeItem("lirma.resume"); } } catch (e) {} }
     Portal.render();
+    if (window.GMaps) {
+      window.GMaps.on((st, reason) => {
+        if (st === "ready" || st === "failed") Portal.resetMaps();
+        if (Portal.embedded) { Portal.render(); return; }
+        if (st === "ready") { Portal.render(); setTimeout(() => { if (window.GMaps.ready()) Portal.toast("Google Maps connected — real street map and address search are on."); }, 2000); }
+        else if (st === "failed") Portal.toast(`Google Maps not available: ${reason} The standard map is used instead.`, "warn");
+        else Portal.render();
+      });
+      window.GMaps.load();
+    }
     if (!opts.embedded) window.addEventListener("resize", () => Object.values(Portal.MAPS).forEach((m) => m.root.isConnected && m.invalidate()));
   };
   Portal.reset = function (store, ui) {
@@ -2414,15 +2842,15 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
   }
   function mapFiltered() {
     const s = S(), a = U().map.applied;
-    const zc = a.zip ? zipCenter(a.zip) : null;
-    const inZip = (lat, lng, zip) => !a.zip || (a.radius ? miles(zc, [lat, lng]) <= +a.radius : zip === a.zip);
+    const zc = a.zip ? (a.zipGeo ? [a.zipGeo.lat, a.zipGeo.lng] : zipCenter(a.zip)) : null;
+    const inZip = (lat, lng, zip) => !a.zip || (a.radius && zc ? miles(zc, [lat, lng]) <= +a.radius : zip === a.zip);
     const jobs = s.jobs.filter((j) => {
       const h = hhOf(j), c = ctrOf(j);
       return inZip(h.lat, h.lng, h.zip) && (!a.county || h.county === a.county) && (!a.ctr || j.ctr === a.ctr) && (!a.status || j.status === a.status) && (!a.band || (c && band(scoreOf(c)).key === a.band));
     });
     const ctrs = s.contractors.filter((c) => {
       const l = Q.location(s, c);
-      return (!a.ctr || c.id === a.ctr) && (!a.band || band(scoreOf(c)).key === a.band) && (!a.county || c.counties.includes(a.county) || Q.openJobs(s, c.id).some((j) => hhOf(j).county === a.county)) && (!a.zip || !a.radius || miles(zc, [l.lat, l.lng]) <= +a.radius);
+      return (!a.ctr || c.id === a.ctr) && (!a.band || band(scoreOf(c)).key === a.band) && (!a.county || c.counties.includes(a.county) || Q.openJobs(s, c.id).some((j) => hhOf(j).county === a.county)) && (!a.zip || !a.radius || !zc || miles(zc, [l.lat, l.lng]) <= +a.radius);
     });
     return { jobs, ctrs };
   }
@@ -2430,7 +2858,10 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
     const s = S(), m = U().map, f = m.f, a = m.applied, sel = m.sel;
     const { jobs, ctrs } = mapFiltered();
     const zips = [...new Set(s.households.map((h) => h.zip))].sort();
+    const G = window.CoMap.usingGoogle(), place = m.place;
+    const zc = a.zip ? (a.zipGeo ? [a.zipGeo.lat, a.zipGeo.lng] : zipCenter(a.zip)) : null;
     const pins = [];
+    if (place) pins.push({ type: "place", id: "place", lat: place.lat, lng: place.lng, title: place.formatted });
     if (m.layer !== "contractors") jobs.forEach((j) => pins.push(hhPin(j, sel && sel.type === "household" && sel.id === j.hh)));
     if (m.layer !== "households") ctrs.forEach((c) => pins.push(ctrPin(c, sel && sel.type === "contractor" && sel.id === c.id)));
     const opt = (k, arr, all) => `<select data-ch="mapF" data-f="${k}"><option value="">${all}</option>${arr.map((o) => { const [v, l] = Array.isArray(o) ? o : [o, o]; return `<option value="${esc(v)}" ${f[k] === v ? "selected" : ""}>${esc(l)}</option>`; }).join("")}</select>`;
@@ -2443,8 +2874,8 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
     return `<div class="page-head tight"><div><h1>Map View</h1><p>Every ${esc(C.program.lirma)} household and contractor in Colorado — live from RadonSketch.</p></div>
         <div class="seg">${[["households", "Households"], ["contractors", "Contractors"], ["both", "Both"]].map(([k, l]) => `<button class="${m.layer === k ? "on" : ""}" data-a="mapLayer" data-arg="${k}">${l}</button>`).join("")}</div></div>
       <div class="map-filters">
-        <label><span>ZIP code</span>${opt("zip", zips.map((z) => [z, `${z} · ${s.households.find((h) => h.zip === z).city}`]), "Any Colorado ZIP")}</label>
-        <label><span>Radius</span><select data-ch="mapF" data-f="radius" ${f.zip ? "" : "disabled"}><option value="">Exact ZIP</option>${[5, 10, 25, 50, 100].map((r) => `<option value="${r}" ${f.radius == r ? "selected" : ""}>${r} mi</option>`).join("")}</select></label>
+        <label class="${G ? "zip-ta" : ""}"><span>ZIP code${G ? " · Google" : ""}</span>${G ? Pt.taBox("zip", "zip", { placeholder: "Any Colorado ZIP", value: U().ta.zip != null ? U().ta.zip : f.zip }) : opt("zip", zips.map((z) => [z, `${z} · ${s.households.find((h) => h.zip === z).city}`]), "Any Colorado ZIP")}</label>
+        <label><span>Radius</span><select data-ch="mapF" data-f="radius" ${f.zip || (G && U().ta.zip) ? "" : "disabled"}><option value="">Exact ZIP</option>${[5, 10, 25, 50, 100].map((r) => `<option value="${r}" ${f.radius == r ? "selected" : ""}>${r} mi</option>`).join("")}</select></label>
         <label><span>County</span>${opt("county", countyNames, "All 64 counties")}</label>
         <label><span>Contractor</span>${opt("ctr", s.contractors.map((c) => [c.id, c.name]), "All contractors")}</label>
         <label><span>Job status</span>${opt("status", statusOpts, "All statuses")}</label>
@@ -2452,12 +2883,34 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
         <button class="btn ghost" data-a="mapReset">Reset</button><button class="btn primary" data-a="mapSearch">${ic("search", 15)} Search</button>
       </div>
       <div class="map-area ${sel ? "with-panel" : ""}">
-        <div class="map-wrap">${Pt.mapSlot("main", { labels: true }, { pins, county: a.county || null })}
+        <div class="map-wrap">${Pt.mapSlot("main", { labels: true }, {
+            pins, county: a.county || null,
+            radius: a.radius && zc ? { key: `${zc.join(",")}|${a.radius}`, center: zc, miles: +a.radius } : null,
+            focus: place ? { key: `p${place.lat},${place.lng}`, lat: place.lat, lng: place.lng, zoom: 15 } : a.zipGeo && !a.radius ? { key: `z${a.zip}`, lat: a.zipGeo.lat, lng: a.zipGeo.lng, zoom: 12 } : null,
+          })}
+          ${G ? `<div class="map-search">${Pt.taBox("place", "place", { placeholder: "Search a Colorado address or place…", value: U().ta.place || "" })}</div>`
+            : `<button class="map-search off" data-a="go" data-arg="settings">${ic(window.GMaps && window.GMaps.status === "failed" ? "alert" : "search", 15)} ${window.GMaps && window.GMaps.status === "failed" ? "Google Maps unavailable — see Settings" : window.GMaps && window.GMaps.status === "loading" ? "Connecting to Google Maps…" : "Connect Google Maps in Settings to search real addresses"}</button>`}
           ${strip}<div class="map-legend"><b>Job status</b>${C.statuses.map((x) => `<span><i style="background:${x.color}"></i>${x.label}</span>`).join("")}<span class="lg-ctr"><i></i>Contractor (ring = on site)</span></div>
-          <div class="map-count">${m.layer !== "contractors" ? `${jobs.length} households` : ""}${m.layer === "both" ? " · " : ""}${m.layer !== "households" ? `${ctrs.length} contractors` : ""}</div>
+          <div class="map-count">${m.layer !== "contractors" ? `${jobs.length} households` : ""}${m.layer === "both" ? " · " : ""}${m.layer !== "households" ? `${ctrs.length} contractors` : ""}${a.zip ? ` · ZIP ${esc(a.zip)}${a.radius ? ` + ${a.radius} mi` : ""}` : ""}${G ? ` <span class="g-on">Google</span>` : ""}</div>
         </div>
-        ${sel ? `<aside class="map-panel" data-scroll="map-panel">${sel.type === "household" ? hhPanel(sel.id) : ctrPanel(sel.id)}</aside>` : ""}
+        ${sel ? `<aside class="map-panel" data-scroll="map-panel">${sel.type === "place" && place ? placePanel(place) : sel.type === "household" ? hhPanel(sel.id) : sel.type === "contractor" ? ctrPanel(sel.id) : ""}</aside>` : ""}
       </div>`;
+  }
+  function placePanel(p) {
+    const s = S(), here = [p.lat, p.lng];
+    const near = s.households.map((h) => ({ h, d: miles(here, [h.lat, h.lng]) })).filter((x) => x.d <= 15).sort((a, b) => a.d - b.d).slice(0, 4);
+    const dupe = near.find((x) => x.d < 0.05);
+    const ctrs = s.contractors.map((c) => ({ c, d: miles(here, [c.base.lat, c.base.lng]), inArea: c.counties.includes(p.county) }))
+      .sort((a, b) => (b.inArea - a.inArea) || a.d - b.d).slice(0, 4);
+    const fmt = (d) => (d < 0.1 ? "< 0.1 mi" : `${d.toFixed(d < 10 ? 1 : 0)} mi`);
+    return `<div class="mp-head"><div><small>${ic("search", 12)} Address search · Google</small><h3>${esc(p.street || p.name || p.formatted.split(",")[0])}</h3><span class="chip">${esc(p.county || "—")} County</span></div><button class="x" data-a="mapClearPlace" aria-label="Clear search">${ic("x", 18)}</button></div>
+      ${dl([["Address", esc(p.formatted)], ["County", p.county ? `${esc(p.county)} County` : "—"], ["ZIP code", esc(p.zip || "—")], ["Coordinates", `<span class="mono">${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}</span>`]])}
+      ${dupe ? `<div class="mp-note">${ic("home", 15)} This address matches <b>${dupe.h.name}</b> (${dupe.h.id}).</div>` : ""}
+      <h4 class="mp-h">LIRMA households within 15 mi <em>${near.length}</em></h4>
+      <div class="mp-jobs">${near.length ? near.map(({ h, d }) => { const j = Q.jobOfHh(s, h.id); return `<button data-a="mapSelectHh" data-arg="${h.id}"><span><b>${h.name}</b><small>${h.city} · ${fmt(d)}</small></span>${badge(j.status)}</button>`; }).join("") : `<div class="empty sm">No programme households nearby.</div>`}</div>
+      <h4 class="mp-h">Contractors for this address</h4>
+      <div class="mp-jobs">${ctrs.map(({ c, d, inArea }) => `<button data-a="openContractor" data-arg="${c.id}"><span><b>${c.name}</b><small>${fmt(d)} from base · ${inArea ? `<span class="ok-t">serves ${esc(p.county)} County</span>` : "outside service area"}${c.status !== "Active" ? ` · ${c.status}` : ""}</small></span>${scoreBadge(scoreOf(c))}</button>`).join("")}</div>
+      ${dupe ? `<button class="btn primary block" data-a="mapSelectHh" data-arg="${dupe.h.id}">View household</button>` : `<button class="btn primary block" data-a="addHhFromPlace">${ic("plus", 15)} Add as LIRMA household</button>`}`;
   }
   function hhPanel(id) {
     const s = S(), h = Q.hh(s, id), j = Q.jobOfHh(s, id), c = ctrOf(j);
@@ -2750,6 +3203,25 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
     return `<div class="page-head"><div><h1>Notifications</h1><p>Programme events from the portal and RadonSketch.</p></div><button class="btn ghost" data-a="markAllRead">${ic("check", 15)} Mark all as read</button></div>
       <div class="card notif">${s.notifications.map((n) => `<button class="nt ${n.unread ? "unread" : ""}${hl("nt-" + n.id)}" data-a="openNotif" data-arg="${n.id}"><span class="nt-ic t-${n.type}">${ic(icon[n.type] || "bell", 17)}</span><span class="nt-b"><b>${esc(n.text)}</b><small>${Dt.dt(n.at)} · ${Dt.rel(n.at, s.now)}</small></span>${n.unread ? "<i></i>" : ""}${ic("chev-right", 16)}</button>`).join("")}</div>`;
   }
+  function googleCard() {
+    const G = window.GMaps, st = G ? G.status : "off", key = G ? G.key() : "";
+    const pill = { off: ["Not connected", "none"], loading: ["Connecting…", "soon"], ready: ["Connected", "valid"], failed: ["Problem", "expired"] }[st];
+    return card(`Google Maps Platform <small>real street map and address search</small>`, `
+      <div class="gk-row"><span class="cred ${pill[1]}">${pill[0]}</span>${key ? `<span class="mono">${esc(G.masked())}</span><small class="muted">${G.keySource() === "browser" ? "saved in this browser" : "set in data.js"}</small>` : `<small class="muted">No key saved</small>`}</div>
+      ${st === "failed" ? `<div class="gk-err">${ic("alert", 15)}<span>${esc(G.reason)}</span></div>` : ""}
+      <div class="gk-grid">
+        <div>
+          <label class="field"><span>${key ? "Replace API key" : "API key"}</span><span class="gk-in"><input type="${U().gkShow ? "text" : "password"}" placeholder="Paste your Google Maps Platform API key (starts with AIza…)" value="${esc(U().gkeyDraft || "")}" data-in="field" data-path="gkeyDraft" data-fk="gkey" autocomplete="off" spellcheck="false"><button class="btn ghost sm" data-a="gShow">${U().gkShow ? "Hide" : "Show"}</button></span></label>
+          <div class="btns"><button class="btn primary" data-a="gSave">${ic("check", 15)} Save &amp; connect</button>${key && G.keySource() === "browser" ? `<button class="btn ghost" data-a="gRemove">Remove key</button>` : ""}</div>
+          <p class="gk-note">${ic("lock", 13)} The key is saved only in this browser on this computer (local storage). It isn't written into the prototype files, so files you share don't contain it.</p>
+          <b class="gk-h">What it turns on</b>
+          <ul class="gk-ul"><li>Google street map on every map — still locked to Colorado</li><li>Address and place search on Map View</li><li>Real ZIP code + radius filter for any Colorado ZIP</li><li>Address search when adding a household, with exact map location</li></ul>
+        </div>
+        <div class="gk-steps"><b class="gk-h">Set up the key in Google Cloud Console</b>
+          <ol><li>Enable <b>Maps JavaScript API</b> and <b>Places API (New)</b> for the project.</li><li>Make sure <b>billing</b> is enabled.</li><li>Under <b>API restrictions</b>, limit the key to those two APIs, and set a quota or budget alert.</li><li>Leave <b>Website restrictions</b> off while you open the prototype by double-clicking — a local file has no website address, so Google would block it. Add the restriction once the prototype is hosted on a website.</li></ol>
+          <p class="muted sm">Map ID: <span class="mono">${esc((C.google && C.google.mapId) || "DEMO_MAP_ID")}</span> (Google's test map ID, set in data.js).</p></div>
+      </div>`, "", "span-all");
+  }
   function settingsPage() {
     return `<div class="page-head"><div><h1>Settings</h1><p>Programme configuration for this prototype. Changes apply immediately.</p></div></div>
       <div class="grid g-11">
@@ -2766,6 +3238,7 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
       </div>
       ${card("Portal users and roles", `<table class="tbl"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Last sign-in</th></tr></thead><tbody>${C.portalUsers.map((u) => `<tr><td><b>${u.name}</b></td><td>${u.email}</td><td><span class="role">${u.role}</span></td><td>${Dt.dt(u.last)}</td></tr>`).join("")}</tbody></table>
         <div class="roles">${[["Program Coordinator", "Creates households and jobs, assigns contractors, manages contractors and settings."], ["Reviewer/Inspector", "Reviews synced reports, approves or requests corrections, adds notes."], ["Read-only", "Views dashboards, maps, jobs and reports. Cannot change records."]].map(([r, d]) => `<div><b>${r}</b><p>${d}</p></div>`).join("")}</div>`, `<button class="btn ghost sm" data-a="inviteUser">${ic("plus", 14)} Invite user</button>`)}
+      ${googleCard()}
       ${card("RadonSketch integration", `<div class="integ">${logo("radonsketch", "integ-logo")}<div><b>Connected</b><p>Jobs are pushed to contractors' RadonSketch apps; reports, photos and compliance checks sync back automatically.</p><small>Last sync ${Dt.dt(S().now)} · ${C.timezone}</small></div><span class="cred valid">Healthy</span></div>`)}`;
   }
 
@@ -2895,9 +3368,14 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
   function hhModal(m) {
     const f = m.f;
     const fld = (k, l, type = "text", extra = "") => `<label class="field"><span>${l}</span><input type="${type}" value="${esc(f[k] || "")}" data-in="field" data-path="modal.f.${k}" ${extra}></label>`;
+    const G = window.CoMap.usingGoogle(), geo = f.lat != null && f.lat !== "";
+    const addr = G
+      ? `<div class="field span2"><span>Address <small class="muted">· search with Google</small></span>${Pt.taBox("hhaddr", "address", { placeholder: "Start typing a Colorado street address…", value: U().ta.hhaddr || "" })}
+          ${geo ? `<div class="geo-ok">${ic("map-pin", 14)} Location set · ${esc(f.county)} County · <span class="mono">${(+f.lat).toFixed(5)}, ${(+f.lng).toFixed(5)}</span></div>` : `<small class="muted">Pick an address so the household lands on the map in the right place.</small>`}</div>
+         ${fld("street", "Street address")}${fld("city", "City")}`
+      : `${fld("street", "Street address")}<label class="field"><span>City</span><select data-in="field" data-path="modal.f.city">${Object.keys(C.cities).map((c) => `<option ${f.city === c ? "selected" : ""}>${c}</option>`).join("")}</select></label>`;
     return `<header class="m-head"><div><h2>Add household</h2><p>Approved ${esc(C.program.lirmaFull)} household</p></div><button class="x" data-a="closeModal" aria-label="Close">${ic("x", 20)}</button></header>
-      <div class="m-body"><div class="form-g">${fld("name", "Household surname")}${fld("phone", "Phone", "tel")}${fld("street", "Street address")}
-        <label class="field"><span>City</span><select data-in="field" data-path="modal.f.city">${Object.keys(C.cities).map((c) => `<option ${f.city === c ? "selected" : ""}>${c}</option>`).join("")}</select></label>
+      <div class="m-body"><div class="form-g">${fld("name", "Household surname")}${fld("phone", "Phone", "tel")}${addr}
         ${fld("zip", "ZIP code")}${fld("approved", "LIRMA approval date", "date")}${fld("pre", "Pre-mitigation reading (pCi/L)", "number", 'step="0.1"')}
         <label class="field"><span>Foundation type</span><select data-in="field" data-path="modal.f.foundation">${["Basement", "Slab-on-grade", "Crawlspace", "Combination"].map((x) => `<option ${f.foundation === x ? "selected" : ""}>${x}</option>`).join("")}</select></label>
         ${fld("built", "Year built", "number")}${fld("occ", "Occupants", "number")}</div></div>
@@ -2969,10 +3447,68 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
     // map
     mapLayer(l) { U().map.layer = l; R(); },
     mapF(v, el) { U().map.f[el.dataset.f] = v; if (el.dataset.f === "zip" && !v) U().map.f.radius = ""; R(); },
-    mapSearch() { U().map.applied = { ...U().map.f }; U().map.sel = null; R(); },
-    mapReset() { U().map.f = { zip: "", radius: "", county: "", ctr: "", status: "", band: "" }; U().map.applied = {}; U().map.sel = null; if (Pt.MAPS.main) Pt.MAPS.main._county = "__"; R(); },
+    async mapSearch() {
+      const m = U().map, f = m.f;
+      if (window.CoMap.usingGoogle()) {
+        const typed = (U().ta.zip || "").trim();
+        if (!typed) { f.zip = ""; f.zipGeo = null; f.radius = ""; }
+        else if (typed !== f.zip || !f.zipGeo) {
+          if (!/^\d{5}$/.test(typed)) { Pt.toast("Enter a 5-digit Colorado ZIP code.", "warn"); return; }
+          try {
+            const sug = await window.GMaps.suggest(typed, "zip");
+            if (!sug.length) { Pt.toast(`ZIP ${typed} wasn't found in Colorado.`, "warn"); return; }
+            const res = await window.GMaps.resolve(sug[0].pred);
+            if (!res.inColorado) { Pt.toast(`ZIP ${typed} is outside Colorado.`, "warn"); return; }
+            f.zip = res.zip || typed; f.zipGeo = { lat: res.lat, lng: res.lng, label: res.formatted }; U().ta.zip = f.zip;
+          } catch (e) { Pt.toast(e.message, "warn"); return; }
+        }
+      }
+      m.applied = { ...f }; if (m.sel && m.sel.type !== "place") m.sel = null; R();
+    },
+    mapReset() { U().map.f = { zip: "", radius: "", county: "", ctr: "", status: "", band: "", zipGeo: null }; U().map.applied = {}; U().map.sel = null; U().map.place = null; U().ta.zip = ""; U().ta.place = ""; if (Pt.MAPS.main) Pt.MAPS.main._county = "__"; R(); },
     mapClearCounty() { U().map.f.county = ""; U().map.applied.county = ""; R(); },
     mapClose() { U().map.sel = null; R(); },
+    mapClearPlace() { const m = U().map; m.place = null; if (m.sel && m.sel.type === "place") m.sel = null; U().ta.place = ""; if (Pt.MAPS.main) { Pt.MAPS.main._county = "__"; Pt.MAPS.main._focusKey = null; } R(); },
+    mapSelectHh(id) { U().map.sel = { type: "household", id }; R(); },
+    taPick(arg) { const [k, i] = arg.split("|"); Pt.taPick(k, +i); },
+    ta_place(res) {
+      if (!res.inColorado) { Pt.toast(`${res.formatted || "That place"} is outside Colorado — the LIRMA programme covers Colorado only.`, "warn"); return; }
+      const m = U().map; m.place = res; m.sel = { type: "place" }; U().ta.place = res.formatted; R();
+    },
+    taEnter_place() { Pt.toast("Pick an address from the list.", "warn"); },
+    ta_zip(res) {
+      if (!res.inColorado) { Pt.toast(`${res.formatted || "That ZIP"} is outside Colorado.`, "warn"); return; }
+      const f = U().map.f; f.zip = res.zip || res.name; f.zipGeo = { lat: res.lat, lng: res.lng, label: res.formatted }; U().ta.zip = f.zip;
+      A.mapSearch();
+    },
+    taEnter_zip() { A.mapSearch(); },
+    addHhFromPlace() {
+      const p = U().map.place; if (!p) return;
+      A.openAddHh();
+      Object.assign(U().modal.f, { street: p.street || p.name, city: p.city, zip: p.zip, county: p.county, lat: p.lat, lng: p.lng });
+      U().ta.hhaddr = p.formatted; R();
+    },
+    ta_hhaddr(res) {
+      if (!res.inColorado) { Pt.toast(`${res.formatted || "That address"} is outside Colorado — only Colorado households qualify.`, "warn"); return; }
+      const m = U().modal; if (!m || m.type !== "hh") return;
+      Object.assign(m.f, { street: res.street || res.name, city: res.city, zip: res.zip, county: res.county, lat: res.lat, lng: res.lng });
+      U().ta.hhaddr = res.formatted; R();
+    },
+    gShow() { U().gkShow = !U().gkShow; R(); },
+    gSave() {
+      const G = window.GMaps, k = (U().gkeyDraft || "").trim();
+      if (!k) { Pt.toast("Paste your API key first.", "warn"); return; }
+      if (!G.looksValid(k)) { Pt.toast("That doesn't look like a Google Maps Platform API key — they start with “AIza”.", "warn"); return; }
+      if (!G.saveKey(k)) { Pt.toast("This browser is blocking local storage, so the key can't be saved.", "warn"); return; }
+      U().gkeyDraft = ""; U().gkShow = false;
+      if (G.loaded()) { try { sessionStorage.setItem("lirma.resume", "settings"); } catch (e) {} location.reload(); return; }
+      G.status = "off"; G.load(); R();
+    },
+    gRemove() {
+      const G = window.GMaps; G.removeKey();
+      if (G.loaded()) { try { sessionStorage.setItem("lirma.resume", "settings"); } catch (e) {} location.reload(); return; }
+      G.status = "off"; G.reason = ""; Pt.resetMaps(); Pt.toast("Google Maps key removed from this browser.");
+    },
     // navigation to records
     openJob(id) { U().modal = { type: "job", id, tab: "details", act: "all" }; U().noteDraft = ""; R(); },
     jobTab(t) { U().modal.tab = t; R(); },
@@ -3043,10 +3579,11 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
       U().noteDraft = ""; Pt.toast("Note added.");
     },
     // households & contractors forms
-    openAddHh() { U().modal = { type: "hh", f: { name: "", street: "", city: "Denver", zip: "", phone: "", approved: today(), pre: "", foundation: "Basement", built: "", occ: "" } }; R(); },
+    openAddHh() { U().modal = { type: "hh", f: { name: "", street: "", city: window.CoMap.usingGoogle() ? "" : "Denver", zip: "", phone: "", approved: today(), pre: "", foundation: "Basement", built: "", occ: "", lat: null, lng: null, county: "" } }; U().ta.hhaddr = ""; R(); },
     saveHh() {
       const f = U().modal.f;
       if (!f.name || !f.street) { Pt.toast("Enter a household surname and street address.", "warn"); return; }
+      if (window.CoMap.usingGoogle() && (f.lat == null || f.lat === "")) { Pt.toast("Pick the address from the Google search list so the household has an exact location.", "warn"); return; }
       const h = Ops.addHousehold(S(), f);
       U().modal = null; U().route = { page: "household", id: h.id };
       Pt.toast(`${h.name} added and an unassigned job created.`);
