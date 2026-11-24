@@ -16,7 +16,10 @@ Two clickable design prototypes for the Colorado Radon Program pitch. They use H
 **To share:** `dist/` has a single-file copy of each prototype, `Colorado-LIRMA-Portal-Prototype.html` and `Colorado-LIRMA-Workflow-Prototype.html`. Each one includes all the CSS and JavaScript. The maps load Leaflet and OpenStreetMap tiles when online and switch to the offline Colorado map when not. If you edit `shared/`, rebuild the files in `dist/`.
 
 ## Maps
-- **Library:** Leaflet 1.9.4 and Leaflet.markercluster 1.5.3, loaded from unpkg at pinned versions with integrity hashes. Tiles come from OpenStreetMap, which needs no API key, and are attributed in the map corner.
+- **Library:** Leaflet 1.9.4 and Leaflet.markercluster 1.5.3, loaded from unpkg at pinned versions with integrity hashes.
+- **Street tiles:** CARTO Voyager (OpenStreetMap data, no API key), with Esri World Street Map as an automatic backup. Both are attributed in the map corner, and the list is in `CONFIG.map.tiles`.
+  - OpenStreetMap's own tile server (`tile.openstreetmap.org`) is not used because it blocks pages opened from a local file and shows "Access blocked" tiles.
+  - For production, the state would use its own licensed tile service.
 - **Colorado only:** every map is limited to the state.
   - The view fits the state boundary on load.
   - Panning is locked with `maxBounds` and `maxBoundsViscosity: 1.0`.

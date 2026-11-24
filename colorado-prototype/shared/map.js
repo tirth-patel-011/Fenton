@@ -14,6 +14,7 @@
   let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
   STATE.forEach(([la, lo]) => { minLat = Math.min(minLat, la); maxLat = Math.max(maxLat, la); minLng = Math.min(minLng, lo); maxLng = Math.max(maxLng, lo); });
   const CO_BOUNDS = [[minLat, minLng], [maxLat, maxLng]];
+  const TILE = { idx: 0, list: () => ((window.CONFIG && window.CONFIG.map && window.CONFIG.map.tiles) || []) };
   const countyByName = {};
   GEO.counties.forEach((c) => (countyByName[c.name] = c));
 
@@ -41,10 +42,7 @@
     }));
     map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
     if (map.zoomControl) map.zoomControl.setPosition("topright");
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
-    }).addTo(map);
+    this._useTiles(TILE.idx);
 
     map.createPane("coMask").style.zIndex = 390;
     map.createPane("coLines").style.zIndex = 395;
@@ -89,6 +87,19 @@
     map.on("zoomend", () => this._labels());
     this.reset(true);
   }
+  // Street tiles with automatic provider fallback (shared across every map on the page)
+  LeafletMap.prototype._useTiles = function (i) {
+    const L = this.L, map = this.map, list = TILE.list();
+    if (this.tiles) map.removeLayer(this.tiles);
+    const p = list[i]; if (!p) return;
+    let loaded = 0, failed = 0;
+    this.tiles = L.tileLayer(p.url, { subdomains: p.subdomains || "abc", maxZoom: p.maxZoom || 19, maxNativeZoom: p.maxZoom || 19, attribution: p.attribution }).addTo(map);
+    this.tiles.on("tileload", () => { loaded++; if (TILE.idx < i) TILE.idx = i; });
+    this.tiles.on("tileerror", () => {
+      failed++;
+      if (!loaded && failed >= 3 && i + 1 < list.length) { TILE.idx = Math.max(TILE.idx, i + 1); this._useTiles(i + 1); }
+    });
+  };
   LeafletMap.prototype._minZoom = function () {
     const pad = this.opts.mini ? [6, 6] : [14, 14];
     return this.map.getBoundsZoom(this.L.latLngBounds(CO_BOUNDS), false, this.L.point(pad[0] * 2, pad[1] * 2));

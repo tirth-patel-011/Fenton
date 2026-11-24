@@ -22,6 +22,28 @@ window.CONFIG = {
     url: "lirma-tracker.example.gov", // placeholder address shown in the workflow browser frame
   },
   disclaimer: "Concept prototype · sample data — not an official State of Colorado system",
+
+  // Street-map tiles, tried in order. If a provider fails to load, the next one is used automatically.
+  // If none load (or the map library itself can't load), an offline SVG map of Colorado is shown.
+  // Note: OpenStreetMap's own tile server (tile.openstreetmap.org) blocks pages opened from a local
+  // file ("Access blocked"), so the defaults are OSM-based providers that allow it.
+  // For production, the state would use its own licensed tile service.
+  map: {
+    tiles: [
+      {
+        name: "CARTO Voyager (OpenStreetMap data)",
+        url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+        subdomains: "abcd", maxZoom: 20,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>',
+      },
+      {
+        name: "Esri World Street Map",
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+        maxZoom: 19,
+        attribution: 'Tiles &copy; <a href="https://www.esri.com" target="_blank" rel="noopener">Esri</a> &mdash; Esri, HERE, Garmin, USGS, EPA, NPS',
+      },
+    ],
+  },
   signedInUser: { name: "Jordan Reyes", role: "Program Coordinator", initials: "JR", email: "jordan.reyes@example.gov" },
 
   // Logo files in colorado-prototype/assets/. Set each to its file name once the logo is copied in,
