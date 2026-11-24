@@ -11,7 +11,7 @@ Two clickable design prototypes for the Colorado Radon Program pitch. They use H
 
 **To open:** double-click either `index.html`. No server, build step or install is needed.
 - **Workflow controls:** use **Next step / Back**, the **← →** keys, the step dots or **Reset demo**.
-- **Timed stages:** some steps play a few timed stages, for example warning → fixed. Pressing Next always moves to the next step.
+- **Manual only:** the demo never advances by itself. Some steps have 2–3 parts (shown as "Step 8 of 14 · 1/2"), for example warning → fixed. Each Next press shows the next part, then moves to the next step. Back reverses one part at a time.
 
 **To share:** `dist/` has a single-file copy of each prototype, `Colorado-LIRMA-Portal-Prototype.html` and `Colorado-LIRMA-Workflow-Prototype.html`. Each one includes all the CSS and JavaScript. The maps load Leaflet and OpenStreetMap tiles when online and switch to the offline Colorado map when not. If you edit `shared/`, rebuild the files in `dist/`.
 
