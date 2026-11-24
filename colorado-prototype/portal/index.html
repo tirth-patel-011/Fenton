@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LIRMA Installation Tracker · Colorado Radon Program — concept prototype</title>
+  <!-- Leaflet 1.9.4 + markercluster 1.5.3 (pinned). If these can't load (offline), every map falls back to an offline SVG map of Colorado. -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" integrity="sha384-pmjIAcz2bAn0xukfxADbZIb3t8oRT9Sv0rvO+BR5Csr6Dhqq+nZs59P0pPKQJkEV" crossorigin="anonymous">
+  <link rel="stylesheet" href="../shared/styles.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" integrity="sha384-eXVCORTRlv4FUUgS/xmOyr66XBVraen8ATNLMESp92FKXLAMiKkerixTiBvXriZr" crossorigin="anonymous"></script>
+</head>
+<body>
+  <!-- Concept prototype · sample data — not an official State of Colorado system. Edit shared/data.js. -->
+  <div id="portal" style="height:100vh"></div>
+  <script src="../shared/data.js"></script>
+  <script src="../shared/colorado-geo.js"></script>
+  <script src="../shared/store.js"></script>
+  <script src="../shared/map.js"></script>
+  <script src="../shared/ui.js"></script>
+  <script src="../shared/portal.js"></script>
+  <script src="../shared/portal-pages.js"></script>
+  <script>
+    window.ASSET_BASE = "../assets/";
+    document.title = `${CONFIG.portal.name} · ${CONFIG.program.name} — concept prototype`;
+    Portal.mount(document.getElementById("portal"), { route: { page: "login" } });
+  </script>
+</body>
+</html>

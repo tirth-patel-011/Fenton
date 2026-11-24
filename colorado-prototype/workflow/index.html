@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LIRMA job workflow · portal + RadonSketch — concept prototype</title>
+  <!-- Leaflet 1.9.4 + markercluster 1.5.3 (pinned). Offline, maps fall back to an SVG map of Colorado. -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" integrity="sha384-pmjIAcz2bAn0xukfxADbZIb3t8oRT9Sv0rvO+BR5Csr6Dhqq+nZs59P0pPKQJkEV" crossorigin="anonymous">
+  <link rel="stylesheet" href="../shared/styles.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" integrity="sha384-eXVCORTRlv4FUUgS/xmOyr66XBVraen8ATNLMESp92FKXLAMiKkerixTiBvXriZr" crossorigin="anonymous"></script>
+</head>
+<body class="wf-body">
+  <div id="stage">
+    <header class="wf-top">
+      <div><b>LIRMA job workflow — portal and RadonSketch app</b><small id="wf-sub"></small></div>
+      <div class="wf-r"><a class="btn ghost sm" href="../portal/index.html">Open full portal &nearr;</a><button class="btn ghost sm" id="wf-reset">&#8634; Reset demo</button></div>
+    </header>
+    <div class="wf-lbl" style="left:26px">&#128187; State programme portal (web)</div>
+    <div class="wf-lbl" style="left:1044px">&#128241; Contractor · RadonSketch app</div>
+    <div class="disclaimer-wf" id="wf-disclaimer"></div>
+
+    <div class="wf-browser" id="wf-portal">
+      <div class="browser" style="width:976px;height:660px">
+        <div class="br-bar"><span class="br-dots"><i></i><i></i><i></i></span><span class="br-url" id="url"></span></div>
+        <div class="br-view" style="height:618px"><div class="br-scale" style="width:1280px;height:810.5px;transform:scale(0.7625)"><div id="portal" style="height:100%"></div></div></div>
+      </div>
+    </div>
+
+    <div class="wf-phone" id="wf-phone">
+      <div class="phone-wrap" style="width:315px;height:660px"><div class="phone" style="transform:scale(0.7604)"><div id="phone-screen"></div><div class="island"></div></div></div>
+    </div>
+
+    <div class="wf-cap">
+      <div><div class="wf-count" id="wf-count"></div><div class="wf-title" id="wf-title"></div><div class="wf-text" id="wf-text"></div></div>
+      <div class="wf-side">
+        <div class="wf-ctrls"><button class="btn ghost" id="wf-prev">&larr; Back</button><button class="btn primary" id="wf-next">Next step &rarr;</button></div>
+        <div class="wf-dots" id="wf-dots"></div>
+      </div>
+    </div>
+  </div>
+  <script src="../shared/data.js"></script>
+  <script src="../shared/colorado-geo.js"></script>
+  <script src="../shared/store.js"></script>
+  <script src="../shared/map.js"></script>
+  <script src="../shared/ui.js"></script>
+  <script src="../shared/portal.js"></script>
+  <script src="../shared/portal-pages.js"></script>
+  <script src="../shared/phone.js"></script>
+  <script src="workflow.js"></script>
+</body>
+</html>
