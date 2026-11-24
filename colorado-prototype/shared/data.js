@@ -56,7 +56,7 @@ window.CONFIG = {
   // e.g. "colorado-radon-program-logo.png". null = show a labelled placeholder box (no file available yet).
   logos: {
     program: "colorado-radon-program-logo.svg", // supplied Colorado logo, used as provided
-    radonsketch: null,  // → "radonsketch-logo.<ext>" once supplied; until then the name is shown as text
+    radonsketch: "radonsketch-logo.svg", // supplied RadonSketch app icon, used as provided (shown with the name beside it)
   },
 
   // Portal colours (Colorado state palette — see README; edit freely). Applied as CSS variables.

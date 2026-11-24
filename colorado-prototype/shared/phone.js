@@ -15,7 +15,9 @@
   };
   const tabbar = () => `<nav class="tabbar"><span class="tab on">${ic("map", 22)}<span>My Projects</span></span><span class="tab"><span class="fab">${ic("plus", 24)}</span></span><span class="tab">${ic("user", 22)}<span>Profile</span></span></nav>`;
   const nav = (title) => `<div class="nav-h"><span class="nav-back">${ic("chev-left", 22)}</span><b>${title}</b></div>`;
-  const appIcon = `<span class="app-ic" aria-label="RadonSketch app icon">RS</span>`;
+  const appIcon = window.UI.logoSrc("radonsketch")
+    ? `<img class="app-ic app-ic-img" src="${window.UI.logoSrc("radonsketch")}" alt="RadonSketch app icon">`
+    : `<span class="app-ic" aria-label="RadonSketch app icon">RS</span>`;
   const kv = (rows) => `<dl class="kv">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`;
   const lirmaStrip = () => `<div class="lirma-strip">${ic("shield", 16)}<span>LIRMA · ${esc(C.program.name)}</span></div>`;
   const seg = (on) => `<div class="seg-p">${["Diagnostic", "Radon Builder", "Report"].map((t) => `<span class="${t === on ? "on" : ""}">${t}</span>`).join("")}</div>`;

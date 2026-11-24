@@ -1,6 +1,7 @@
 # Logos
 
-- `colorado-radon-program-logo.svg` is the supplied Colorado logo, used exactly as provided.
-- `radonsketch-logo.<ext>` is still needed. Add the file here and set `CONFIG.logos.radonsketch` in `shared/data.js`. Until then, the name "RadonSketch" is shown as text.
+Both files are used exactly as supplied:
+- `colorado-radon-program-logo.svg` is the Colorado logo.
+- `radonsketch-logo.svg` is the RadonSketch app icon.
 
-After adding or changing a logo, rebuild the single-file versions in `dist/`, so the logo is embedded in them.
+To replace a logo, replace the file, keep the same name (or update `CONFIG.logos` in `shared/data.js`), then rebuild the single-file versions in `dist/` so the new logo is embedded.

@@ -69,8 +69,6 @@ h1, h2, h3, h4, p, dl, dd { margin: 0; }
 .login-rs { width: auto; height: auto; color: var(--ink); }
 .logo.sm { width: 200px; height: 32px; color: var(--co-navy); }
 .integ-logo { width: auto; height: auto; color: var(--ink); }
-.logo.wordmark { font-size: 19px; font-weight: 800; letter-spacing: -.02em; justify-content: flex-start; line-height: 1; }
-.login-pw .logo.wordmark { font-size: 16px; text-transform: none; letter-spacing: -.02em; }
 
 /* top bar */
 .main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
@@ -740,7 +738,6 @@ button.hb:hover .hb-l { color: var(--co-blue); }
 .gk-steps .sm { font-size: 12px; }
 .cred.none { background: #EEF1F5; color: var(--muted); }
 .field .ta-in, .field .ta-in:focus { border: 0; padding: 0; outline: 0; background: none; }
-.sb-foot > .logo.wordmark { text-transform: none; letter-spacing: -.02em; font-size: 19px; color: #fff; }
 .rd-head .logo.sm { width: 170px; height: 28px; }
 .mf-acts { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .mf-acts small { font-size: 11.5px; margin-right: 4px; }
@@ -825,3 +822,17 @@ td .sync-badge.sm { margin-top: 4px; }
 .rv-side .card > .rv-st, .mp-head .st-badge, .mp-head .ctr-st { justify-self: start; width: max-content; }
 .vh .rv-st { flex: none; }
 .m-body > .search.wide { margin-bottom: 14px; }
+
+/* RadonSketch brand: supplied app icon (as an app tile) + name */
+.rs-brand { display: inline-flex; align-items: center; justify-content: flex-start; gap: 9px; width: auto; height: auto; line-height: 1; text-transform: none; letter-spacing: 0; }
+.rs-brand img { width: 30px; height: 30px; max-width: none; max-height: none; border-radius: 7px; flex: none; box-shadow: 0 0 0 1px rgba(0, 0, 0, .06); }
+.rs-brand b { font-size: 18px; font-weight: 800; letter-spacing: -.02em; white-space: nowrap; }
+.sb-foot .rs-brand b { color: #fff; }
+.sb-foot .rs-brand img { box-shadow: none; }
+.login-pw .rs-brand img { width: 24px; height: 24px; border-radius: 6px; }
+.login-pw .rs-brand b { font-size: 16px; color: var(--ink); }
+.integ .rs-brand img { width: 44px; height: 44px; border-radius: 10px; }
+.integ .rs-brand b { display: none; }
+.app-ic-img { object-fit: cover; background: #fff; padding: 0; }
+.sb-foot > .rs-brand { text-transform: none; letter-spacing: 0; font-size: inherit; color: #fff; margin: 2px 0; }
+.sb-foot { padding-bottom: 84px; gap: 8px; }

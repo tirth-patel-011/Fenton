@@ -62,8 +62,9 @@ Everything editable is in **`shared/data.js` → `CONFIG`**:
 The agency name is a single field, so it can change if oversight moves to another department.
 
 ## Logos
-- **Colorado logo:** `assets/colorado-radon-program-logo.svg` is the supplied Colorado logo ("Colorado · CDPHE · Environmental Public Health Tracking"), used exactly as provided. It appears on the sign-in page, on a white panel at the top of the sidebar, and in the report header. The single-file versions in `dist/` embed it, so it shows wherever the file is opened.
-- **RadonSketch logo:** not supplied yet, so the name "RadonSketch" is shown as text. To add it, copy the file to `assets/radonsketch-logo.<ext>`, set `CONFIG.logos.radonsketch` in `shared/data.js` to that name, and rebuild `dist/`.
+Both logos are used exactly as supplied, and the single-file versions in `dist/` embed them, so they show wherever the file is opened.
+- **Colorado logo:** `assets/colorado-radon-program-logo.svg` ("Colorado · CDPHE · Environmental Public Health Tracking"). It appears on the sign-in page, on a white panel at the top of the sidebar, and in the report header.
+- **RadonSketch logo:** `assets/radonsketch-logo.svg` is the RadonSketch app icon. It's shown as an app tile with the name "RadonSketch" beside it under "Powered by" in the sidebar, on the sign-in page and in Settings. It's also the app icon on the phone's notifications in the workflow demo.
 ## Files
 ```
 portal/index.html          Full portal prototype

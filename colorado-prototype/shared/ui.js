@@ -56,12 +56,14 @@
   const ic = (n, s = 18, cls = "") => `<svg class="ic ${cls}" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n] || ""}</svg>`;
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
+  // Logo file URL (single-file builds embed logos as data URIs)
+  const logoSrc = (kind) => { const f = C.logos[kind]; if (!f) return ""; return /^(data:|https?:)/.test(f) ? f : (window.ASSET_BASE || "../assets/") + f; };
   const logo = (kind, cls = "") => {
     const file = C.logos[kind], label = kind === "program" ? "Colorado Radon Program logo" : "RadonSketch logo";
-    const base = window.ASSET_BASE || "../assets/";
-    if (!file && kind === "radonsketch") return `<span class="logo ${cls} logo-radonsketch wordmark" role="img" aria-label="RadonSketch">RadonSketch</span>`;
+    // RadonSketch: the supplied file is the app icon, so it is shown as an app tile with the name beside it
+    if (kind === "radonsketch") return `<span class="logo ${cls} logo-radonsketch rs-brand" role="img" aria-label="RadonSketch">${file ? `<img src="${logoSrc(kind)}" alt="" onerror="this.remove()">` : ""}<b>RadonSketch</b></span>`;
     if (!file) return `<span class="logo ${cls} logo-${kind} missing" role="img" aria-label="${label}"><span class="logo-ph">${label}</span></span>`;
-    const src = /^(data:|https?:)/.test(file) ? file : base + file; // single-file builds embed the logo as a data URI
+    const src = logoSrc(kind);
     return `<span class="logo ${cls} logo-${kind}"><img src="${src}" alt="${label}" onerror="this.parentNode.classList.add('missing');this.remove()"><span class="logo-ph">${label}</span></span>`;
   };
 
@@ -197,5 +199,5 @@
     </article>`;
   }
 
-  window.UI = { ic, esc, logo, badge, scoreBadge, bandPill, gauge, bars, hbars, line, timeline, plan, reportDoc, TPS, PHOTOS };
+  window.UI = { ic, esc, logo, logoSrc, badge, scoreBadge, bandPill, gauge, bars, hbars, line, timeline, plan, reportDoc, TPS, PHOTOS };
 })();
