@@ -176,7 +176,14 @@
     if (this.circle) { this.map.removeLayer(this.circle); this.circle = null; }
     if (!center) return;
     this.circle = this.L.circle(center, { radius: miles * 1609.34, color: "#1D5FAD", weight: 1.5, fillOpacity: 0.06, interactive: false }).addTo(this.map);
-    this.map.fitBounds(this.circle.getBounds(), { padding: [20, 20] });
+  };
+  // Camera for a filter result: { type: "reset" | "bounds" | "point" | "none", bounds, lat, lng, zoom, maxZoom }
+  LeafletMap.prototype.fitView = function (v) {
+    if (!v || v.type === "none") return;
+    this.map.stop();
+    if (v.type === "reset") return this.reset(true);
+    if (v.type === "point") return this.map.setView([v.lat, v.lng], Math.max(v.zoom || 13, this.map.getMinZoom()), { animate: false });
+    this.map.fitBounds(v.bounds, { padding: [50, 50], maxZoom: v.maxZoom || 12, animate: false });
   };
   LeafletMap.prototype.setTracking = function (t) {
     const L = this.L, map = this.map;
@@ -305,10 +312,14 @@
   };
   SvgMap.prototype.setPins = function (pins) { this.pins = pins; this._draw(); };
   SvgMap.prototype.focus = function (lat, lng) { const x = X(lng), y = Y(lat); this._fit(x - 8, y - 5, 16, 10); };
-  SvgMap.prototype.showRadius = function (center, miles) {
-    if (!center) return;
-    const dLat = miles / 69, dLng = miles / (69 * Math.cos((center[0] * Math.PI) / 180));
-    this._fit(X(center[1] - dLng), Y(center[0] + dLat), X(center[1] + dLng) - X(center[1] - dLng), Y(center[0] - dLat) - Y(center[0] + dLat));
+  SvgMap.prototype.showRadius = function () {}; // the offline map frames the radius via fitView
+  SvgMap.prototype.fitView = function (v) {
+    if (!v || v.type === "none") return;
+    if (v.type === "reset") return this.reset();
+    if (v.type === "point") return this.focus(v.lat, v.lng);
+    const [[s, w], [n, e]] = v.bounds, x0 = X(w), x1 = X(e), y0 = Y(n), y1 = Y(s);
+    const pw = Math.max(x1 - x0, 10), ph = Math.max(y1 - y0, 6), cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    this._fit(cx - pw * 0.65, cy - ph * 0.65, pw * 1.3, ph * 1.3);
   };
   SvgMap.prototype._draw = function () {
     if (!this.v) return;
@@ -496,7 +507,15 @@
     if (this.circle) { this.circle.setMap(null); this.circle = null; }
     if (!center) return;
     this.circle = new this.g.Circle({ map: this.map, center: ll(center), radius: miles * 1609.34, strokeColor: "#1D5FAD", strokeWeight: 1.5, fillColor: "#1D5FAD", fillOpacity: 0.06, clickable: false, zIndex: 4 });
-    this.map.fitBounds(this.circle.getBounds(), 20);
+  };
+  GoogleMap.prototype.fitView = function (v) {
+    if (!v || v.type === "none") return;
+    const tok = (this._viewTok = (this._viewTok || 0) + 1); // a newer view cancels an older view's zoom cap
+    if (v.type === "reset") return this.reset();
+    if (v.type === "point") return this.focus(v.lat, v.lng, v.zoom);
+    const [[s, w], [n, e]] = v.bounds, max = v.maxZoom || 12;
+    this.map.fitBounds({ south: s, west: w, north: n, east: e }, 60);
+    this.g.event.addListenerOnce(this.map, "idle", () => { if (tok === this._viewTok && this.map.getZoom() > max) this.map.setZoom(max); });
   };
   GoogleMap.prototype.setTracking = function (t) {
     cancelAnimationFrame(this._raf);

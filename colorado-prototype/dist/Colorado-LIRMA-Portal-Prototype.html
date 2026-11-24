@@ -752,6 +752,12 @@ button.hb:hover .hb-l { color: var(--co-blue); }
 .field .ta-in, .field .ta-in:focus { border: 0; padding: 0; outline: 0; background: none; }
 .sb-foot > .logo.wordmark { text-transform: none; letter-spacing: -.02em; font-size: 19px; color: #fff; }
 .rd-head .logo.sm { width: 170px; height: 28px; }
+.mf-acts { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.mf-acts small { font-size: 11.5px; margin-right: 4px; }
+.map-filters .mf-acts .btn { margin-left: 0; }
+.map-empty { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 650; display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; box-shadow: 0 16px 36px -14px rgba(16, 24, 40, .45); color: var(--muted); animation: rise .2s var(--ease); }
+.map-empty b { display: block; color: var(--ink); font-size: 14px; } .map-empty small { font-size: 12.5px; }
+.map-search ~ .county-strip { left: 12px; top: 98px; transform: none; }
 
 </style>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
@@ -1645,7 +1651,14 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
     if (this.circle) { this.map.removeLayer(this.circle); this.circle = null; }
     if (!center) return;
     this.circle = this.L.circle(center, { radius: miles * 1609.34, color: "#1D5FAD", weight: 1.5, fillOpacity: 0.06, interactive: false }).addTo(this.map);
-    this.map.fitBounds(this.circle.getBounds(), { padding: [20, 20] });
+  };
+  // Camera for a filter result: { type: "reset" | "bounds" | "point" | "none", bounds, lat, lng, zoom, maxZoom }
+  LeafletMap.prototype.fitView = function (v) {
+    if (!v || v.type === "none") return;
+    this.map.stop();
+    if (v.type === "reset") return this.reset(true);
+    if (v.type === "point") return this.map.setView([v.lat, v.lng], Math.max(v.zoom || 13, this.map.getMinZoom()), { animate: false });
+    this.map.fitBounds(v.bounds, { padding: [50, 50], maxZoom: v.maxZoom || 12, animate: false });
   };
   LeafletMap.prototype.setTracking = function (t) {
     const L = this.L, map = this.map;
@@ -1774,10 +1787,14 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
   };
   SvgMap.prototype.setPins = function (pins) { this.pins = pins; this._draw(); };
   SvgMap.prototype.focus = function (lat, lng) { const x = X(lng), y = Y(lat); this._fit(x - 8, y - 5, 16, 10); };
-  SvgMap.prototype.showRadius = function (center, miles) {
-    if (!center) return;
-    const dLat = miles / 69, dLng = miles / (69 * Math.cos((center[0] * Math.PI) / 180));
-    this._fit(X(center[1] - dLng), Y(center[0] + dLat), X(center[1] + dLng) - X(center[1] - dLng), Y(center[0] - dLat) - Y(center[0] + dLat));
+  SvgMap.prototype.showRadius = function () {}; // the offline map frames the radius via fitView
+  SvgMap.prototype.fitView = function (v) {
+    if (!v || v.type === "none") return;
+    if (v.type === "reset") return this.reset();
+    if (v.type === "point") return this.focus(v.lat, v.lng);
+    const [[s, w], [n, e]] = v.bounds, x0 = X(w), x1 = X(e), y0 = Y(n), y1 = Y(s);
+    const pw = Math.max(x1 - x0, 10), ph = Math.max(y1 - y0, 6), cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    this._fit(cx - pw * 0.65, cy - ph * 0.65, pw * 1.3, ph * 1.3);
   };
   SvgMap.prototype._draw = function () {
     if (!this.v) return;
@@ -1965,7 +1982,15 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
     if (this.circle) { this.circle.setMap(null); this.circle = null; }
     if (!center) return;
     this.circle = new this.g.Circle({ map: this.map, center: ll(center), radius: miles * 1609.34, strokeColor: "#1D5FAD", strokeWeight: 1.5, fillColor: "#1D5FAD", fillOpacity: 0.06, clickable: false, zIndex: 4 });
-    this.map.fitBounds(this.circle.getBounds(), 20);
+  };
+  GoogleMap.prototype.fitView = function (v) {
+    if (!v || v.type === "none") return;
+    const tok = (this._viewTok = (this._viewTok || 0) + 1); // a newer view cancels an older view's zoom cap
+    if (v.type === "reset") return this.reset();
+    if (v.type === "point") return this.focus(v.lat, v.lng, v.zoom);
+    const [[s, w], [n, e]] = v.bounds, max = v.maxZoom || 12;
+    this.map.fitBounds({ south: s, west: w, north: n, east: e }, 60);
+    this.g.event.addListenerOnce(this.map, "idle", () => { if (tok === this._viewTok && this.map.getZoom() > max) this.map.setZoom(max); });
   };
   GoogleMap.prototype.setTracking = function (t) {
     cancelAnimationFrame(this._raf);
@@ -2416,18 +2441,33 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
         m = Portal.MAPS[key] = window.CoMap.create(el, { ...d.opts, onSelect: (p) => Portal.onMapSelect(key, p), onReset: () => Portal.onMapReset(key) });
         m._county = null;
       } else {
-        slot.replaceWith(m.root);
+        moveInto(slot.parentNode, m.root, slot); slot.remove();
         m.invalidate();
       }
       m.setPins(d.pins || []);
       const county = d.county || null;
-      if (county !== m._county) { m._county = county; county ? m.fitCounty(county) : m.reset(); }
+      if (d.view !== undefined) {
+        // Map View: county is only highlighted; the camera follows d.view (fit to the filter result)
+        if (county !== m._county) { m._county = county; m.highlightCounty(county); }
+      } else if (county !== m._county) { m._county = county; county ? m.fitCounty(county) : m.reset(); }
       if ((d.trackKey || null) !== (m._trackKey || null)) { m._trackKey = d.trackKey || null; m.setTracking(d.tracking || null); }
       const rk = d.radius ? d.radius.key : null;
       if (rk !== (m._radiusKey || null)) { m._radiusKey = rk; if (m.showRadius) m.showRadius(d.radius ? d.radius.center : null, d.radius ? d.radius.miles : 0); }
       const fk = d.focus ? d.focus.key : null;
       if (fk !== (m._focusKey || null)) { m._focusKey = fk; if (d.focus && m.focus) m.focus(d.focus.lat, d.focus.lng, d.focus.zoom); }
+      if (d.view !== undefined) { const vk = d.view ? d.view.key : null; if (vk !== (m._viewKey || null)) { m._viewKey = vk; m.fitView(d.view); } }
     });
+  }
+  // Move a live map element without detaching it where the browser supports it (Element.moveBefore),
+  // so Google's marker elements keep rendering; otherwise a normal insert.
+  function moveInto(parent, node, ref) {
+    if (parent.moveBefore && node.isConnected) { try { parent.moveBefore(node, ref || null); return; } catch (e) {} }
+    parent.insertBefore(node, ref || null);
+  }
+  function mapPark() {
+    let p = document.getElementById("co-map-park");
+    if (!p) { p = document.createElement("div"); p.id = "co-map-park"; p.style.cssText = "position:fixed;left:-10000px;top:0;width:1200px;height:800px;overflow:hidden;visibility:hidden"; document.body.appendChild(p); }
+    return p;
   }
   Portal.resetMaps = function () {
     Object.values(Portal.MAPS).forEach((m) => {
@@ -2493,9 +2533,7 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
       else if (window.PortalActions["taEnter_" + key]) window.PortalActions["taEnter_" + key](el.value);
     } else if (e.key === "Escape") { TA.items[key] = []; taList(key, ""); }
   };
-  Portal.onMapReset = function (key) {
-    if (key === "main" && Portal.UI.map.applied.county) { Portal.UI.map.applied.county = ""; Portal.UI.map.f.county = ""; Portal.MAPS.main._county = null; Portal.render(); }
-  };
+  Portal.onMapReset = function () {}; // "Reset to Colorado" only moves the camera; filters stay as they are
   Portal.onMapSelect = function (key, p) {
     if (Portal.embedded) return;
     if (key === "track") return;
@@ -2511,7 +2549,8 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
     const scrolls = {};
     root.querySelectorAll("[data-scroll]").forEach((el) => (scrolls[el.dataset.scroll] = el.scrollTop));
     const ae = document.activeElement, fk = ae && root.contains(ae) && ae.dataset ? ae.dataset.fk : null, caret = fk && ae.selectionStart;
-    Object.values(Portal.MAPS).forEach((m) => m.root.parentNode && m.root.remove());
+    const park = mapPark();
+    Object.values(Portal.MAPS).forEach((m) => { if (m.root.isConnected) moveInto(park, m.root); else if (m.root.parentNode) m.root.remove(); });
     Portal.pending = {};
     const P = window.PortalPages;
     let html;
@@ -2846,6 +2885,30 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
     if (place) pins.push({ type: "place", id: "place", lat: place.lat, lng: place.lng, title: place.formatted });
     if (m.layer !== "contractors") jobs.forEach((j) => pins.push(hhPin(j, sel && sel.type === "household" && sel.id === j.hh)));
     if (m.layer !== "households") ctrs.forEach((c) => pins.push(ctrPin(c, sel && sel.type === "contractor" && sel.id === c.id)));
+    // Camera: frame whatever the filters return (or the searched address)
+    const active = !!(a.zip || a.county || a.ctr || a.status || a.band);
+    const shown = (m.layer !== "contractors" ? jobs.length : 0) + (m.layer !== "households" ? ctrs.length : 0);
+    let view;
+    if (m.viewTarget === "place" && place) view = { key: `place:${place.lat},${place.lng}:${m.viewNonce || 0}`, type: "point", lat: place.lat, lng: place.lng, zoom: 15 };
+    else {
+      const key = "f:" + JSON.stringify([a.zip || "", a.radius || "", a.county || "", a.ctr || "", a.status || "", a.band || "", m.layer, m.viewNonce || 0]);
+      if (!active) view = { key, type: "reset" };
+      else if (a.radius && zc) {
+        const r = +a.radius, dLat = r / 69, dLng = r / (69 * Math.cos((zc[0] * Math.PI) / 180));
+        view = { key, type: "bounds", bounds: [[zc[0] - dLat, zc[1] - dLng], [zc[0] + dLat, zc[1] + dLng]], maxZoom: 13 };
+      } else if (a.county) {
+        const c = window.CoMap.countyOf(a.county); view = { key, type: "bounds", bounds: c.bbox, maxZoom: 11 };
+      } else {
+        const pts = m.layer !== "contractors" ? jobs.map((j) => [hhOf(j).lat, hhOf(j).lng]) : [];
+        if (m.layer !== "households" && (m.layer === "contractors" || a.ctr || a.band || !pts.length)) ctrs.forEach((c) => { const l = Q.location(s, c); pts.push([l.lat, l.lng]); });
+        if (!pts.length) view = a.zip && zc ? { key, type: "point", lat: zc[0], lng: zc[1], zoom: 12 } : { key, type: "none" };
+        else {
+          const la = pts.map((p) => p[0]), lo = pts.map((p) => p[1]);
+          const b = [[Math.min(...la), Math.min(...lo)], [Math.max(...la), Math.max(...lo)]];
+          view = b[1][0] - b[0][0] < 0.02 && b[1][1] - b[0][1] < 0.02 ? { key, type: "point", lat: (b[0][0] + b[1][0]) / 2, lng: (b[0][1] + b[1][1]) / 2, zoom: 13 } : { key, type: "bounds", bounds: b, maxZoom: 12 };
+        }
+      }
+    }
     const opt = (k, arr, all) => `<select data-ch="mapF" data-f="${k}"><option value="">${all}</option>${arr.map((o) => { const [v, l] = Array.isArray(o) ? o : [o, o]; return `<option value="${esc(v)}" ${f[k] === v ? "selected" : ""}>${esc(l)}</option>`; }).join("")}</select>`;
     let strip = "";
     if (a.county) {
@@ -2862,14 +2925,15 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
         <label><span>Contractor</span>${opt("ctr", s.contractors.map((c) => [c.id, c.name]), "All contractors")}</label>
         <label><span>Job status</span>${opt("status", statusOpts, "All statuses")}</label>
         <label><span>Compliance band</span>${opt("band", [["poor", `POOR (<${C.thresholds.good}%)`], ["good", `GOOD (${C.thresholds.good}–${C.thresholds.great - 1}%)`], ["great", `GREAT (${C.thresholds.great}%+)`]], "All bands")}</label>
-        <button class="btn ghost" data-a="mapReset">Reset</button><button class="btn primary" data-a="mapSearch">${ic("search", 15)} Search</button>
+        <div class="mf-acts"><small class="muted">Filters apply instantly</small><button class="btn ghost" data-a="mapReset">Reset</button>${G ? `<button class="btn primary" data-a="mapSearch">${ic("search", 15)} Search ZIP</button>` : ""}</div>
       </div>
       <div class="map-area ${sel ? "with-panel" : ""}">
         <div class="map-wrap">${Pt.mapSlot("main", { labels: true }, {
             pins, county: a.county || null,
             radius: a.radius && zc ? { key: `${zc.join(",")}|${a.radius}`, center: zc, miles: +a.radius } : null,
-            focus: place ? { key: `p${place.lat},${place.lng}`, lat: place.lat, lng: place.lng, zoom: 15 } : a.zipGeo && !a.radius ? { key: `z${a.zip}`, lat: a.zipGeo.lat, lng: a.zipGeo.lng, zoom: 12 } : null,
+            view,
           })}
+          ${active && !shown ? `<div class="map-empty">${ic("search", 18)}<div><b>No results for these filters</b><small>Try a larger radius or fewer filters.</small></div><button class="btn ghost sm" data-a="mapReset">Reset filters</button></div>` : ""}
           ${G ? `<div class="map-search">${Pt.taBox("place", "place", { placeholder: "Search a Colorado address or place…", value: U().ta.place || "" })}</div>`
             : `<button class="map-search off" data-a="go" data-arg="settings">${ic(window.GMaps && window.GMaps.status === "failed" ? "alert" : "search", 15)} ${window.GMaps && window.GMaps.status === "failed" ? "Google Maps unavailable — see Settings" : window.GMaps && window.GMaps.status === "loading" ? "Connecting to Google Maps…" : "Connect Google Maps in Settings to search real addresses"}</button>`}
           ${strip}<div class="map-legend"><b>Job status</b>${C.statuses.map((x) => `<span><i style="background:${x.color}"></i>${x.label}</span>`).join("")}<span class="lg-ctr"><i></i>Contractor (ring = on site)</span></div>
@@ -3419,7 +3483,7 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
       else if (pg === "contractors") { const [, v] = q.split("="); U().tables.contractors = freshTable({}, v, "score", "asc"); U().route = { page: "contractors" }; }
       U().modal = null; R();
     },
-    dashCounty(label) { const county = label.replace(" County", ""); U().map.f = { ...U().map.f, county }; U().map.applied = { ...U().map.f }; U().route = { page: "map" }; R(); },
+    dashCounty(label) { const county = label.replace(" County", ""); const m = U().map; m.f = { ...m.f, county }; m.applied = { ...m.f }; m.viewTarget = "filters"; U().route = { page: "map" }; R(); },
     // tables
     tblSort(arg) { const [k, c] = arg.split("|"), t = U().tables[k]; if (t.sort === c) t.dir = t.dir === "asc" ? "desc" : "asc"; else { t.sort = c; t.dir = "asc"; } R(); },
     tblPage(arg) { const [k, n] = arg.split("|"); U().tables[k].page = +n; R(); },
@@ -3427,35 +3491,43 @@ window.CO_GEO = {"state":[[[36.996,-105.718],[36.995,-106.005],[36.994,-106.475]
     tblF(v, el) { const t = U().tables[el.dataset.key]; t.f[el.dataset.f] = v; t.page = 1; R(); },
     tblSpecialClear(k) { U().tables[k].special = null; R(); },
     // map
-    mapLayer(l) { U().map.layer = l; R(); },
-    mapF(v, el) { U().map.f[el.dataset.f] = v; if (el.dataset.f === "zip" && !v) U().map.f.radius = ""; R(); },
-    async mapSearch() {
+    mapLayer(l) { U().map.layer = l; U().map.viewTarget = "filters"; R(); },
+    // Every filter applies as soon as it changes, and the map frames the result
+    mapF(v, el) { const f = U().map.f; f[el.dataset.f] = v; if (el.dataset.f === "zip" && !v) f.radius = ""; A.mapSearch(true); },
+    async mapSearch(auto) {
       const m = U().map, f = m.f;
       if (window.CoMap.usingGoogle()) {
         const typed = (U().ta.zip || "").trim();
         if (!typed) { f.zip = ""; f.zipGeo = null; f.radius = ""; }
         else if (typed !== f.zip || !f.zipGeo) {
-          if (!/^\d{5}$/.test(typed)) { Pt.toast("Enter a 5-digit Colorado ZIP code.", "warn"); return; }
-          try {
-            const sug = await window.GMaps.suggest(typed, "zip");
-            if (!sug.length) { Pt.toast(`ZIP ${typed} wasn't found in Colorado.`, "warn"); return; }
-            const res = await window.GMaps.resolve(sug[0].pred);
-            if (!res.inColorado) { Pt.toast(`ZIP ${typed} is outside Colorado.`, "warn"); return; }
-            f.zip = res.zip || typed; f.zipGeo = { lat: res.lat, lng: res.lng, label: res.formatted }; U().ta.zip = f.zip;
-          } catch (e) { Pt.toast(e.message, "warn"); return; }
+          if (!/^\d{5}$/.test(typed)) {
+            if (auto === true) { f.zip = m.applied.zip || ""; f.zipGeo = m.applied.zipGeo || null; } // half-typed ZIP: keep the last one
+            else { Pt.toast("Enter a 5-digit Colorado ZIP code.", "warn"); return; }
+          } else {
+            try {
+              const sug = await window.GMaps.suggest(typed, "zip");
+              if (!sug.length) { Pt.toast(`ZIP ${typed} wasn't found in Colorado.`, "warn"); return; }
+              const res = await window.GMaps.resolve(sug[0].pred);
+              if (!res.inColorado) { Pt.toast(`ZIP ${typed} is outside Colorado.`, "warn"); return; }
+              f.zip = res.zip || typed; f.zipGeo = { lat: res.lat, lng: res.lng, label: res.formatted }; U().ta.zip = f.zip;
+            } catch (e) { Pt.toast(e.message, "warn"); return; }
+          }
         }
       }
-      m.applied = { ...f }; if (m.sel && m.sel.type !== "place") m.sel = null; R();
+      if (!f.zip) f.radius = "";
+      m.applied = { ...f }; m.viewTarget = "filters"; m.viewNonce = (m.viewNonce || 0) + 1;
+      if (m.sel && m.sel.type !== "place") m.sel = null;
+      R();
     },
-    mapReset() { U().map.f = { zip: "", radius: "", county: "", ctr: "", status: "", band: "", zipGeo: null }; U().map.applied = {}; U().map.sel = null; U().map.place = null; U().ta.zip = ""; U().ta.place = ""; if (Pt.MAPS.main) Pt.MAPS.main._county = "__"; R(); },
-    mapClearCounty() { U().map.f.county = ""; U().map.applied.county = ""; R(); },
+    mapReset() { const m = U().map; m.f = { zip: "", radius: "", county: "", ctr: "", status: "", band: "", zipGeo: null }; m.applied = {}; m.sel = null; m.place = null; U().ta.zip = ""; U().ta.place = ""; m.viewTarget = "filters"; m.viewNonce = (m.viewNonce || 0) + 1; R(); },
+    mapClearCounty() { const m = U().map; m.f.county = ""; m.applied.county = ""; m.viewTarget = "filters"; R(); },
     mapClose() { U().map.sel = null; R(); },
-    mapClearPlace() { const m = U().map; m.place = null; if (m.sel && m.sel.type === "place") m.sel = null; U().ta.place = ""; if (Pt.MAPS.main) { Pt.MAPS.main._county = "__"; Pt.MAPS.main._focusKey = null; } R(); },
+    mapClearPlace() { const m = U().map; m.place = null; if (m.sel && m.sel.type === "place") m.sel = null; U().ta.place = ""; m.viewTarget = "filters"; m.viewNonce = (m.viewNonce || 0) + 1; R(); },
     mapSelectHh(id) { U().map.sel = { type: "household", id }; R(); },
     taPick(arg) { const [k, i] = arg.split("|"); Pt.taPick(k, +i); },
     ta_place(res) {
       if (!res.inColorado) { Pt.toast(`${res.formatted || "That place"} is outside Colorado — the LIRMA programme covers Colorado only.`, "warn"); return; }
-      const m = U().map; m.place = res; m.sel = { type: "place" }; U().ta.place = res.formatted; R();
+      const m = U().map; m.place = res; m.sel = { type: "place" }; U().ta.place = res.formatted; m.viewTarget = "place"; m.viewNonce = (m.viewNonce || 0) + 1; R();
     },
     taEnter_place() { Pt.toast("Pick an address from the list.", "warn"); },
     ta_zip(res) {

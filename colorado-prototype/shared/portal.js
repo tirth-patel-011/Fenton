@@ -86,18 +86,33 @@
         m = Portal.MAPS[key] = window.CoMap.create(el, { ...d.opts, onSelect: (p) => Portal.onMapSelect(key, p), onReset: () => Portal.onMapReset(key) });
         m._county = null;
       } else {
-        slot.replaceWith(m.root);
+        moveInto(slot.parentNode, m.root, slot); slot.remove();
         m.invalidate();
       }
       m.setPins(d.pins || []);
       const county = d.county || null;
-      if (county !== m._county) { m._county = county; county ? m.fitCounty(county) : m.reset(); }
+      if (d.view !== undefined) {
+        // Map View: county is only highlighted; the camera follows d.view (fit to the filter result)
+        if (county !== m._county) { m._county = county; m.highlightCounty(county); }
+      } else if (county !== m._county) { m._county = county; county ? m.fitCounty(county) : m.reset(); }
       if ((d.trackKey || null) !== (m._trackKey || null)) { m._trackKey = d.trackKey || null; m.setTracking(d.tracking || null); }
       const rk = d.radius ? d.radius.key : null;
       if (rk !== (m._radiusKey || null)) { m._radiusKey = rk; if (m.showRadius) m.showRadius(d.radius ? d.radius.center : null, d.radius ? d.radius.miles : 0); }
       const fk = d.focus ? d.focus.key : null;
       if (fk !== (m._focusKey || null)) { m._focusKey = fk; if (d.focus && m.focus) m.focus(d.focus.lat, d.focus.lng, d.focus.zoom); }
+      if (d.view !== undefined) { const vk = d.view ? d.view.key : null; if (vk !== (m._viewKey || null)) { m._viewKey = vk; m.fitView(d.view); } }
     });
+  }
+  // Move a live map element without detaching it where the browser supports it (Element.moveBefore),
+  // so Google's marker elements keep rendering; otherwise a normal insert.
+  function moveInto(parent, node, ref) {
+    if (parent.moveBefore && node.isConnected) { try { parent.moveBefore(node, ref || null); return; } catch (e) {} }
+    parent.insertBefore(node, ref || null);
+  }
+  function mapPark() {
+    let p = document.getElementById("co-map-park");
+    if (!p) { p = document.createElement("div"); p.id = "co-map-park"; p.style.cssText = "position:fixed;left:-10000px;top:0;width:1200px;height:800px;overflow:hidden;visibility:hidden"; document.body.appendChild(p); }
+    return p;
   }
   Portal.resetMaps = function () {
     Object.values(Portal.MAPS).forEach((m) => {
@@ -163,9 +178,7 @@
       else if (window.PortalActions["taEnter_" + key]) window.PortalActions["taEnter_" + key](el.value);
     } else if (e.key === "Escape") { TA.items[key] = []; taList(key, ""); }
   };
-  Portal.onMapReset = function (key) {
-    if (key === "main" && Portal.UI.map.applied.county) { Portal.UI.map.applied.county = ""; Portal.UI.map.f.county = ""; Portal.MAPS.main._county = null; Portal.render(); }
-  };
+  Portal.onMapReset = function () {}; // "Reset to Colorado" only moves the camera; filters stay as they are
   Portal.onMapSelect = function (key, p) {
     if (Portal.embedded) return;
     if (key === "track") return;
@@ -181,7 +194,8 @@
     const scrolls = {};
     root.querySelectorAll("[data-scroll]").forEach((el) => (scrolls[el.dataset.scroll] = el.scrollTop));
     const ae = document.activeElement, fk = ae && root.contains(ae) && ae.dataset ? ae.dataset.fk : null, caret = fk && ae.selectionStart;
-    Object.values(Portal.MAPS).forEach((m) => m.root.parentNode && m.root.remove());
+    const park = mapPark();
+    Object.values(Portal.MAPS).forEach((m) => { if (m.root.isConnected) moveInto(park, m.root); else if (m.root.parentNode) m.root.remove(); });
     Portal.pending = {};
     const P = window.PortalPages;
     let html;

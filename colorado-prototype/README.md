@@ -27,6 +27,7 @@ Two clickable design prototypes for the Colorado Radon Program pitch. They use H
   - Everything outside the state is masked in grey.
   - County outlines are shown, with labels at state-level zoom.
   - The target button in the corner resets the view to Colorado.
+- **Filters:** Map View filters apply as soon as they change. The map then frames the result: a county zooms to that county, a ZIP radius to the circle, and other filters to the matching households. Clearing the filters returns to the whole state. When nothing matches, a "No results" message appears.
 - **Offline:** if Leaflet can't load, every map automatically switches to an offline SVG map of Colorado. It keeps the same county outlines, pins, clustering, the pan/zoom lock and the Reset to Colorado button.
 - **Boundary data:** `shared/colorado-geo.js` is generated from US Census cartographic boundaries (public domain, via the `us-atlas` package).
 
