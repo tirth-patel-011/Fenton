@@ -10,6 +10,8 @@ Two clickable design prototypes for the Colorado Radon Program pitch. They use H
 | Workflow | `workflow/index.html` | The portal in a browser frame (left) and the RadonSketch app in an iPhone frame (right), stepping one job through 14 steps from assignment to approval. |
 
 **To open:** double-click either `index.html`. No server, build step or install is needed.
+
+**To share:** `dist/` has a single-file copy of each prototype, `Colorado-LIRMA-Portal-Prototype.html` and `Colorado-LIRMA-Workflow-Prototype.html`. Each one includes all the CSS and JavaScript. The maps load Leaflet and OpenStreetMap tiles when online and switch to the offline Colorado map when not. If you edit `shared/`, rebuild the files in `dist/`.
 - **Workflow controls:** use **Next step / Back**, the **← →** keys, the step dots or **Reset demo**.
 - **Timed stages:** some steps play a few timed stages, for example warning → fixed. Pressing Next always moves to the next step.
 
