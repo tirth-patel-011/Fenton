@@ -229,7 +229,7 @@
         <g class="co-svg-counties">${COUNTY_PATHS.map((c) => `<path data-c="${c.name}" d="${c.d}"/>`).join("")}</g>
         <path class="co-svg-outline" d="${STATE_PATH}"/>
         <g class="co-svg-labels">${opts.labels ? COUNTY_PATHS.map((c) => `<text x="${c.cx.toFixed(1)}" y="${c.cy.toFixed(1)}">${c.name}</text>`).join("") : ""}</g>
-        <g class="co-svg-track"></g><g class="co-svg-pins"></g>
+        <g class="co-svg-radius"></g><g class="co-svg-track"></g><g class="co-svg-pins"></g>
       </svg>
       <div class="co-svg-ctrls">${opts.mini ? "" : `<button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="out" aria-label="Zoom out">−</button>`}
         <button type="button" class="co-reset" data-z="reset" title="Reset to Colorado">${TARGET_SVG}${opts.mini ? "" : "<span>Colorado</span>"}</button></div>
@@ -312,7 +312,15 @@
   };
   SvgMap.prototype.setPins = function (pins) { this.pins = pins; this._draw(); };
   SvgMap.prototype.focus = function (lat, lng) { const x = X(lng), y = Y(lat); this._fit(x - 8, y - 5, 16, 10); };
-  SvgMap.prototype.showRadius = function () {}; // the offline map frames the radius via fitView
+  SvgMap.prototype.showRadius = function (center, miles) {
+    // same circle as the street maps: a ring of points `miles` from the centre, drawn under the pins
+    const g = this.svg.querySelector(".co-svg-radius");
+    if (!center || !miles) { g.innerHTML = ""; return; }
+    const [lat, lng] = center, dLat = miles / 69.05, dLng = miles / (69.17 * Math.cos((lat * Math.PI) / 180));
+    let d = "";
+    for (let i = 0; i <= 72; i++) { const a = (i / 72) * 2 * Math.PI; d += (i ? "L" : "M") + X(lng + dLng * Math.cos(a)).toFixed(2) + "," + Y(lat + dLat * Math.sin(a)).toFixed(2); }
+    g.innerHTML = `<path d="${d}Z" fill="#1D5FAD" fill-opacity="0.06" stroke="#1D5FAD" stroke-width="1.5" vector-effect="non-scaling-stroke"/>`;
+  };
   SvgMap.prototype.fitView = function (v) {
     if (!v || v.type === "none") return;
     if (v.type === "reset") return this.reset();

@@ -14,7 +14,7 @@
   const freshUI = () => ({
     route: { page: "login" }, modal: null, tables: {}, toasts: [], period: "month",
     custom: { from: "2026-11-01", to: "2026-11-30" },
-    map: { layer: "both", f: { zip: "", radius: "", county: "", ctr: "", status: "", band: "", zipGeo: null }, applied: {}, sel: null, place: null },
+    map: { layer: "both", f: { zip: "", radius: "", county: "", ctr: "", status: "", band: "" }, applied: {}, sel: null, place: null },
     highlight: [], menu: null, cal: {}, ta: {}, gkeyDraft: "", gkShow: false, ctrTab: "details", metricsRange: "all", projToggle: "current", reportTab: "pending",
   });
 
@@ -123,23 +123,37 @@
   };
 
   /* ---------- address typeahead (Google Places) ---------- */
-  const TA = { items: {}, idx: {}, timers: {}, seq: {} };
-  Portal.taBox = function (key, kind, { placeholder = "", value = "" } = {}) {
-    return `<div class="ta" data-ta-box="${key}">${ic("search", 15)}<input class="ta-in" type="search" data-ta="${key}" data-kind="${kind}" data-fk="ta-${key}" value="${esc(value)}" placeholder="${esc(placeholder)}" autocomplete="off" spellcheck="false" aria-autocomplete="list">
+  const TA = { items: {}, idx: {}, timers: {}, seq: {}, kind: {} };
+  Portal.taBox = function (key, kind, { placeholder = "", value = "", attrs = "" } = {}) {
+    TA.kind[key] = kind;
+    return `<div class="ta" data-ta-box="${key}">${ic("search", 15)}<input class="ta-in" type="search" data-ta="${key}" data-kind="${kind}" data-fk="ta-${key}" value="${esc(value)}" placeholder="${esc(placeholder)}" autocomplete="off" spellcheck="false" aria-autocomplete="list" ${attrs}>
       <div class="ta-list" data-ta-list="${key}" hidden></div></div>`;
   };
   const taList = (key, html) => { const el = Portal.root.querySelector(`[data-ta-list="${key}"]`); if (!el) return; el.innerHTML = html; el.hidden = !html; };
   const taFoot = `<div class="ta-foot">powered by <b><span style="color:#4285F4">G</span><span style="color:#EA4335">o</span><span style="color:#FBBC05">o</span><span style="color:#4285F4">g</span><span style="color:#34A853">l</span><span style="color:#EA4335">e</span></b></div>`;
   function taRender(key) {
-    const items = TA.items[key] || [], idx = TA.idx[key] || 0;
+    const items = TA.items[key] || [], idx = TA.idx[key] || 0, foot = TA.kind[key] === "colorado-zip" ? "" : taFoot;
     taList(key, items.length
-      ? items.map((it, i) => `<button type="button" class="ta-i ${i === idx ? "on" : ""}" data-a="taPick" data-arg="${key}|${i}">${ic("map-pin", 15)}<span><b>${esc(it.main)}</b><small>${esc(it.secondary)}</small></span></button>`).join("") + taFoot
-      : `<div class="ta-msg">No matches in Colorado.</div>${taFoot}`);
+      ? items.map((it, i) => `<button type="button" class="ta-i ${i === idx ? "on" : ""}" data-a="taPick" data-arg="${key}|${i}">${ic("map-pin", 15)}<span><b>${esc(it.main)}</b><small>${esc(it.secondary)}</small></span></button>`).join("") + foot
+      : `<div class="ta-msg">No matches in Colorado.</div>${foot}`);
+  }
+  // Colorado ZIP codes: answered locally from the bundled ZIP list (works with or without Google, online or offline)
+  function zipInput(key, q) {
+    const act = (n, ...a) => window.PortalActions[n + "_" + key] && window.PortalActions[n + "_" + key](...a);
+    const d = q.replace(/\D/g, "").slice(0, 5), Z = window.CO_ZIPS || {};
+    if (!d) { TA.items[key] = []; taList(key, ""); act("taClear"); return; }
+    if (d.length === 5 && Z[d]) { TA.items[key] = []; taList(key, ""); act("ta", { zip: d, lat: Z[d][0], lng: Z[d][1], county: Z[d][2] }); return; }
+    const items = Object.keys(Z).filter((z) => z.startsWith(d)).sort().slice(0, 8)
+      .map((z) => ({ main: z, secondary: `${Z[z][2]} County`, local: { zip: z, lat: Z[z][0], lng: Z[z][1], county: Z[z][2] } }));
+    TA.items[key] = items; TA.idx[key] = 0;
+    if (items.length) taRender(key);
+    else taList(key, `<div class="ta-msg">${d.length === 5 ? `${d} isn't a Colorado ZIP code.` : `No Colorado ZIP codes start with ${d}.`}</div>`);
   }
   Portal.taInput = function (el) {
     const key = el.dataset.ta, kind = el.dataset.kind, q = el.value;
     Portal.UI.ta[key] = q;
     clearTimeout(TA.timers[key]);
+    if (kind === "colorado-zip") { zipInput(key, q); return; }
     if (q.trim().length < 3 || !window.GMaps || !window.GMaps.ready()) { TA.items[key] = []; taList(key, ""); return; }
     taList(key, `<div class="ta-msg">Searching…</div>${taFoot}`);
     const seq = (TA.seq[key] = (TA.seq[key] || 0) + 1);
@@ -157,6 +171,7 @@
   Portal.taPick = async function (key, i) {
     const it = (TA.items[key] || [])[+i];
     if (!it) return;
+    if (it.local) { TA.items[key] = []; taList(key, ""); const fn = window.PortalActions["ta_" + key]; if (fn) fn(it.local, it); return; }
     taList(key, `<div class="ta-msg">Loading ${esc(it.main)}…</div>`);
     try {
       const res = await window.GMaps.resolve(it.pred);

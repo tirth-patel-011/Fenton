@@ -155,30 +155,32 @@
      MAP VIEW
      ========================================================================= */
   function zipCenter(zip) {
+    const z = window.CO_ZIPS && window.CO_ZIPS[zip];
+    if (z) return [z[0], z[1]];
     const hs = S().households.filter((h) => h.zip === zip);
     if (!hs.length) return null;
     return [hs.reduce((a, h) => a + h.lat, 0) / hs.length, hs.reduce((a, h) => a + h.lng, 0) / hs.length];
   }
   function mapFiltered() {
     const s = S(), a = U().map.applied;
-    const zc = a.zip ? (a.zipGeo ? [a.zipGeo.lat, a.zipGeo.lng] : zipCenter(a.zip)) : null;
-    const inZip = (lat, lng, zip) => !a.zip || (a.radius && zc ? miles(zc, [lat, lng]) <= +a.radius : zip === a.zip);
+    const zc = a.zip ? zipCenter(a.zip) : null, zCounty = a.zip && window.CO_ZIPS && window.CO_ZIPS[a.zip] ? window.CO_ZIPS[a.zip][2] : null;
+    // ZIP: households in that ZIP. ZIP + radius: those, plus any household within the radius of the ZIP's centre.
+    const inZip = (lat, lng, zip) => !a.zip || zip === a.zip || (!!a.radius && !!zc && miles(zc, [lat, lng]) <= +a.radius);
     const jobs = s.jobs.filter((j) => {
       const h = hhOf(j), c = ctrOf(j);
       return inZip(h.lat, h.lng, h.zip) && (!a.county || h.county === a.county) && (!a.ctr || j.ctr === a.ctr) && (!a.status || j.status === a.status) && (!a.band || (c && band(scoreOf(c)).key === a.band));
     });
     const ctrs = s.contractors.filter((c) => {
       const l = Q.location(s, c);
-      return (!a.ctr || c.id === a.ctr) && (!a.band || band(scoreOf(c)).key === a.band) && (!a.county || c.counties.includes(a.county) || Q.openJobs(s, c.id).some((j) => hhOf(j).county === a.county)) && (!a.zip || !a.radius || !zc || miles(zc, [l.lat, l.lng]) <= +a.radius);
+      return (!a.ctr || c.id === a.ctr) && (!a.band || band(scoreOf(c)).key === a.band) && (!a.county || c.counties.includes(a.county) || Q.openJobs(s, c.id).some((j) => hhOf(j).county === a.county)) && (!a.zip || (zCounty && c.counties.includes(zCounty)) || (!!a.radius && !!zc && miles(zc, [l.lat, l.lng]) <= +a.radius));
     });
     return { jobs, ctrs };
   }
   function mapPage() {
     const s = S(), m = U().map, f = m.f, a = m.applied, sel = m.sel;
     const { jobs, ctrs } = mapFiltered();
-    const zips = [...new Set(s.households.map((h) => h.zip))].sort();
     const G = window.CoMap.usingGoogle(), place = m.place;
-    const zc = a.zip ? (a.zipGeo ? [a.zipGeo.lat, a.zipGeo.lng] : zipCenter(a.zip)) : null;
+    const zc = a.zip ? zipCenter(a.zip) : null, zInfo = a.zip && window.CO_ZIPS ? window.CO_ZIPS[a.zip] : null;
     const pins = [];
     if (place) pins.push({ type: "place", id: "place", lat: place.lat, lng: place.lng, title: place.formatted });
     if (m.layer !== "contractors") jobs.forEach((j) => pins.push(hhPin(j, sel && sel.type === "household" && sel.id === j.hh)));
@@ -190,11 +192,17 @@
     if (m.viewTarget === "place" && place) view = { key: `place:${place.lat},${place.lng}:${m.viewNonce || 0}`, type: "point", lat: place.lat, lng: place.lng, zoom: 15 };
     else {
       const key = "f:" + JSON.stringify([a.zip || "", a.radius || "", a.county || "", a.ctr || "", a.status || "", a.band || "", m.layer, m.viewNonce || 0]);
+      const hhPts = m.layer !== "contractors" ? jobs.map((j) => [hhOf(j).lat, hhOf(j).lng]) : [];
+      const fit = (pts, maxZoom) => {
+        const la = pts.map((p) => p[0]), lo = pts.map((p) => p[1]), b = [[Math.min(...la), Math.min(...lo)], [Math.max(...la), Math.max(...lo)]];
+        return b[1][0] - b[0][0] < 0.02 && b[1][1] - b[0][1] < 0.02 ? { key, type: "point", lat: (b[0][0] + b[1][0]) / 2, lng: (b[0][1] + b[1][1]) / 2, zoom: maxZoom } : { key, type: "bounds", bounds: b, maxZoom };
+      };
       if (!active) view = { key, type: "reset" };
-      else if (a.radius && zc) {
+      else if (a.zip && zc && a.radius) {
         const r = +a.radius, dLat = r / 69, dLng = r / (69 * Math.cos((zc[0] * Math.PI) / 180));
-        view = { key, type: "bounds", bounds: [[zc[0] - dLat, zc[1] - dLng], [zc[0] + dLat, zc[1] + dLng]], maxZoom: 13 };
-      } else if (a.county) {
+        view = fit([[zc[0] - dLat, zc[1] - dLng], [zc[0] + dLat, zc[1] + dLng], ...hhPts], 13);   // the circle plus every match
+      } else if (a.zip && zc) view = fit([zc, ...hhPts], 13);                                     // the ZIP and its households
+      else if (a.county) {
         const c = window.CoMap.countyOf(a.county); view = { key, type: "bounds", bounds: c.bbox, maxZoom: 11 };
       } else {
         const pts = m.layer !== "contractors" ? jobs.map((j) => [hhOf(j).lat, hhOf(j).lng]) : [];
@@ -217,13 +225,13 @@
     return `<div class="page-head tight"><div><h1>Map View</h1><p>Every ${esc(C.program.lirma)} household and contractor in Colorado — live from RadonSketch.</p></div>
         <div class="seg">${[["households", "Households"], ["contractors", "Contractors"], ["both", "Both"]].map(([k, l]) => `<button class="${m.layer === k ? "on" : ""}" data-a="mapLayer" data-arg="${k}">${l}</button>`).join("")}</div></div>
       <div class="map-filters">
-        <label class="${G ? "zip-ta" : ""}"><span>ZIP code${G ? " · Google" : ""}</span>${G ? Pt.taBox("zip", "zip", { placeholder: "Any Colorado ZIP", value: U().ta.zip != null ? U().ta.zip : f.zip }) : opt("zip", zips.map((z) => [z, `${z} · ${s.households.find((h) => h.zip === z).city}`]), "Any Colorado ZIP")}</label>
-        <label><span>Radius</span><select data-ch="mapF" data-f="radius" ${f.zip || (G && U().ta.zip) ? "" : "disabled"}><option value="">Exact ZIP</option>${[5, 10, 25, 50, 100].map((r) => `<option value="${r}" ${f.radius == r ? "selected" : ""}>${r} mi</option>`).join("")}</select></label>
+        <label class="zip-ta"><span>ZIP code</span>${Pt.taBox("zip", "colorado-zip", { placeholder: "Any Colorado ZIP", value: U().ta.zip != null ? U().ta.zip : f.zip, attrs: 'inputmode="numeric" maxlength="5"' })}</label>
+        <label><span>Radius</span><select data-ch="mapF" data-f="radius"><option value="">ZIP only</option>${[5, 10, 25, 50, 100].map((r) => `<option value="${r}" ${f.radius == r ? "selected" : ""}>${r} mi</option>`).join("")}</select></label>
         <label><span>County</span>${opt("county", countyNames, "All 64 counties")}</label>
         <label><span>Contractor</span>${opt("ctr", s.contractors.map((c) => [c.id, c.name]), "All contractors")}</label>
         <label><span>Job status</span>${opt("status", statusOpts, "All statuses")}</label>
         <label><span>Compliance band</span>${opt("band", [["poor", `POOR (<${C.thresholds.good}%)`], ["good", `GOOD (${C.thresholds.good}–${C.thresholds.great - 1}%)`], ["great", `GREAT (${C.thresholds.great}%+)`]], "All bands")}</label>
-        <div class="mf-acts"><small class="muted">Filters apply instantly</small><button class="btn ghost" data-a="mapReset">Reset</button>${G ? `<button class="btn primary" data-a="mapSearch">${ic("search", 15)} Search ZIP</button>` : ""}</div>
+        <div class="mf-acts"><small class="muted">Filters apply instantly</small><button class="btn ghost" data-a="mapReset">Reset</button></div>
       </div>
       <div class="map-area ${sel ? "with-panel" : ""}">
         <div class="map-wrap">${Pt.mapSlot("main", { labels: true }, {
@@ -235,7 +243,7 @@
           ${G ? `<div class="map-search">${Pt.taBox("place", "place", { placeholder: "Search a Colorado address or place…", value: U().ta.place || "" })}</div>`
             : `<button class="map-search off" data-a="go" data-arg="settings">${ic(window.GMaps && window.GMaps.status === "failed" ? "alert" : "search", 15)} ${window.GMaps && window.GMaps.status === "failed" ? "Google Maps unavailable — see Settings" : window.GMaps && window.GMaps.status === "loading" ? "Connecting to Google Maps…" : "Connect Google Maps in Settings to search real addresses"}</button>`}
           ${strip}<div class="map-legend"><b>Job status</b>${C.statuses.map((x) => `<span><i style="background:${x.color}"></i>${x.label}</span>`).join("")}<span class="lg-ctr"><i></i>Contractor (ring = on site)</span></div>
-          <div class="map-count">${m.layer !== "contractors" ? `${jobs.length} households` : ""}${m.layer === "both" ? " · " : ""}${m.layer !== "households" ? `${ctrs.length} contractors` : ""}${a.zip ? ` · ZIP ${esc(a.zip)}${a.radius ? ` + ${a.radius} mi` : ""}` : ""}${G ? ` <span class="g-on">Google</span>` : ""}</div>
+          <div class="map-count">${m.layer !== "contractors" ? `${jobs.length} households` : ""}${m.layer === "both" ? " · " : ""}${m.layer !== "households" ? `${ctrs.length} contractors` : ""}${a.zip ? ` · ZIP ${esc(a.zip)}${zInfo ? ` (${esc(zInfo[2])} County)` : ""}${a.radius ? ` + ${a.radius} mi` : ""}` : ""}${!a.zip && a.radius ? ` · <span class="hint-t">enter a ZIP to use the ${a.radius} mi radius</span>` : ""}${G ? ` <span class="g-on">Google</span>` : ""}</div>
         </div>
         ${sel ? `<aside class="map-panel" data-scroll="map-panel">${sel.type === "place" && place ? placePanel(place) : sel.type === "household" ? hhPanel(sel.id) : sel.type === "contractor" ? ctrPanel(sel.id) : ""}</aside>` : ""}
       </div>`;
@@ -796,33 +804,25 @@
     // map
     mapLayer(l) { U().map.layer = l; U().map.viewTarget = "filters"; R(); },
     // Every filter applies as soon as it changes, and the map frames the result
-    mapF(v, el) { const f = U().map.f; f[el.dataset.f] = v; if (el.dataset.f === "zip" && !v) f.radius = ""; A.mapSearch(true); },
-    async mapSearch(auto) {
-      const m = U().map, f = m.f;
-      if (window.CoMap.usingGoogle()) {
-        const typed = (U().ta.zip || "").trim();
-        if (!typed) { f.zip = ""; f.zipGeo = null; f.radius = ""; }
-        else if (typed !== f.zip || !f.zipGeo) {
-          if (!/^\d{5}$/.test(typed)) {
-            if (auto === true) { f.zip = m.applied.zip || ""; f.zipGeo = m.applied.zipGeo || null; } // half-typed ZIP: keep the last one
-            else { Pt.toast("Enter a 5-digit Colorado ZIP code.", "warn"); return; }
-          } else {
-            try {
-              const sug = await window.GMaps.suggest(typed, "zip");
-              if (!sug.length) { Pt.toast(`ZIP ${typed} wasn't found in Colorado.`, "warn"); return; }
-              const res = await window.GMaps.resolve(sug[0].pred);
-              if (!res.inColorado) { Pt.toast(`ZIP ${typed} is outside Colorado.`, "warn"); return; }
-              f.zip = res.zip || typed; f.zipGeo = { lat: res.lat, lng: res.lng, label: res.formatted }; U().ta.zip = f.zip;
-            } catch (e) { Pt.toast(e.message, "warn"); return; }
-          }
-        }
+    mapF(v, el) {
+      const f = U().map.f; f[el.dataset.f] = v;
+      if (el.dataset.f === "radius" && v && !f.zip) {
+        Pt.toast("Enter a Colorado ZIP code — the radius is measured from it.", "warn");
+        setTimeout(() => { const i = Pt.root.querySelector('[data-ta="zip"]'); if (i) i.focus(); }, 0);
       }
-      if (!f.zip) f.radius = "";
-      m.applied = { ...f }; m.viewTarget = "filters"; m.viewNonce = (m.viewNonce || 0) + 1;
-      if (m.sel && m.sel.type !== "place") m.sel = null;
-      R();
+      A.mapApply();
     },
-    mapReset() { const m = U().map; m.f = { zip: "", radius: "", county: "", ctr: "", status: "", band: "", zipGeo: null }; m.applied = {}; m.sel = null; m.place = null; U().ta.zip = ""; U().ta.place = ""; m.viewTarget = "filters"; m.viewNonce = (m.viewNonce || 0) + 1; R(); },
+    // Apply the current filters and frame the result on the map
+    mapApply() { const m = U().map; m.applied = { ...m.f }; m.viewTarget = "filters"; m.viewNonce = (m.viewNonce || 0) + 1; if (m.sel && m.sel.type !== "place") m.sel = null; R(); },
+    ta_zip(z) { const f = U().map.f; f.zip = z.zip; U().ta.zip = z.zip; A.mapApply(); },
+    taClear_zip() { const f = U().map.f; if (!f.zip) return; f.zip = ""; U().ta.zip = ""; A.mapApply(); },
+    taEnter_zip(v) {
+      const d = String(v || "").replace(/\D/g, ""), Z = window.CO_ZIPS || {};
+      if (Z[d]) A.ta_zip({ zip: d });
+      else Pt.toast(d.length === 5 ? `${d} isn't a Colorado ZIP code.` : "Enter a 5-digit Colorado ZIP code.", "warn");
+    },
+    mapSearch() { A.mapApply(); },
+    mapReset() { const m = U().map; m.f = { zip: "", radius: "", county: "", ctr: "", status: "", band: "" }; m.applied = {}; m.sel = null; m.place = null; U().ta.zip = ""; U().ta.place = ""; m.viewTarget = "filters"; m.viewNonce = (m.viewNonce || 0) + 1; R(); },
     mapClearCounty() { const m = U().map; m.f.county = ""; m.applied.county = ""; m.viewTarget = "filters"; R(); },
     mapClose() { U().map.sel = null; R(); },
     mapClearPlace() { const m = U().map; m.place = null; if (m.sel && m.sel.type === "place") m.sel = null; U().ta.place = ""; m.viewTarget = "filters"; m.viewNonce = (m.viewNonce || 0) + 1; R(); },
@@ -833,12 +833,6 @@
       const m = U().map; m.place = res; m.sel = { type: "place" }; U().ta.place = res.formatted; m.viewTarget = "place"; m.viewNonce = (m.viewNonce || 0) + 1; R();
     },
     taEnter_place() { Pt.toast("Pick an address from the list.", "warn"); },
-    ta_zip(res) {
-      if (!res.inColorado) { Pt.toast(`${res.formatted || "That ZIP"} is outside Colorado.`, "warn"); return; }
-      const f = U().map.f; f.zip = res.zip || res.name; f.zipGeo = { lat: res.lat, lng: res.lng, label: res.formatted }; U().ta.zip = f.zip;
-      A.mapSearch();
-    },
-    taEnter_zip() { A.mapSearch(); },
     addHhFromPlace() {
       const p = U().map.place; if (!p) return;
       A.openAddHh();

@@ -317,6 +317,7 @@ button.hb:hover .hb-l { color: var(--co-blue); }
 .co-svg-counties path.hl { stroke: #1D5FAD; stroke-width: calc(var(--sw, .5) * 3); fill: rgba(29, 95, 173, .08); }
 .co-svg-outline { fill: none; stroke: #13294B; stroke-width: var(--sw2, 2); }
 .co-svg-labels text { font-size: var(--lbl, 7px); font-weight: 700; fill: #556377; text-anchor: middle; text-transform: uppercase; letter-spacing: .02em; pointer-events: none; }
+.co-svg-radius { pointer-events: none; }
 .co-svg-pin { cursor: pointer; }
 .co-svg-pin.cluster .co-svg-cl-o { fill: rgba(19, 41, 75, .25); } .co-svg-pin.cluster .co-svg-cl-i { fill: #13294B; stroke: #fff; stroke-width: 2; }
 .co-svg-pin.cluster text { fill: #fff; font-size: 12px; font-weight: 700; text-anchor: middle; }
@@ -836,3 +837,8 @@ td .sync-badge.sm { margin-top: 4px; }
 .app-ic-img { object-fit: cover; background: #fff; padding: 0; }
 .sb-foot > .rs-brand { text-transform: none; letter-spacing: 0; font-size: inherit; color: #fff; margin: 2px 0; }
 .sb-foot { padding-bottom: 84px; gap: 8px; }
+.zip-ta .ta { width: 170px; }
+.zip-ta .ta-list { min-width: 240px; }
+.hint-t { color: #9A5F00; font-weight: 600; }
+.zip-ta .ta { width: 150px; }
+@media (max-width: 1560px) { .mf-acts small { display: none; } }

@@ -13,7 +13,7 @@ Two clickable design prototypes for the Colorado Radon Program pitch. They use H
 - **Workflow controls:** use **Next step / Back**, the **← →** keys, the step dots or **Reset demo**.
 - **Manual only:** the demo never advances by itself. Some steps have 2–3 parts (shown as "Step 8 of 14 · 1/2"), for example warning → fixed. Each Next press shows the next part, then moves to the next step. Back reverses one part at a time.
 
-**To share:** `dist/` has a single-file copy of each prototype, `Colorado-LIRMA-Portal-Prototype.html` and `Colorado-LIRMA-Workflow-Prototype.html`. Each one includes all the CSS and JavaScript. The maps load Leaflet and OpenStreetMap tiles when online and switch to the offline Colorado map when not. If you edit `shared/`, rebuild the files in `dist/`.
+**To share:** `dist/` has a single-file copy of each prototype, `Colorado-LIRMA-Portal-Prototype.html` and `Colorado-LIRMA-Workflow-Prototype.html`. Each one includes all the CSS and JavaScript. The maps load Leaflet and street-map tiles when online and switch to the offline Colorado map when not. If you edit `shared/`, rebuild the files in `dist/`.
 
 ## Maps
 - **Library:** Leaflet 1.9.4 and Leaflet.markercluster 1.5.3, loaded from unpkg at pinned versions with integrity hashes.
@@ -28,14 +28,19 @@ Two clickable design prototypes for the Colorado Radon Program pitch. They use H
   - County outlines are shown, with labels at state-level zoom.
   - The target button in the corner resets the view to Colorado.
 - **Filters:** Map View filters apply as soon as they change. The map then frames the result: a county zooms to that county, a ZIP radius to the circle, and other filters to the matching households. Clearing the filters returns to the whole state. When nothing matches, a "No results" message appears.
+- **ZIP code and radius:** type any Colorado ZIP code (all 527 are built in) and it applies as soon as the fifth digit is entered. Partial input lists matching ZIPs with their county, and a ZIP from outside Colorado is flagged.
+  - **ZIP only:** households in that ZIP, and contractors serving that ZIP's county.
+  - **ZIP + radius (5, 10, 25, 50 or 100 mi):** also includes every household and contractor within that distance of the ZIP's centre. The circle is drawn on the map.
+  - Choosing a radius before a ZIP prompts for the ZIP, because the radius is measured from it.
+  - The ZIP filter works the same with Google Maps, the standard map and the offline map, and it makes no Google calls.
 - **Offline:** if Leaflet can't load, every map automatically switches to an offline SVG map of Colorado. It keeps the same county outlines, pins, clustering, the pan/zoom lock and the Reset to Colorado button.
 - **Boundary data:** `shared/colorado-geo.js` is generated from US Census cartographic boundaries (public domain, via the `us-atlas` package).
+- **ZIP data:** `shared/colorado-zips.js` holds the centre point and county of each Colorado ZIP code. It comes from US Census ZIP Code Tabulation Areas (public domain, via the MIT-licensed `us-zips` package), with each county found from the boundary data above.
 
 ## Google Maps Platform (optional, real address search)
 With a Google Maps Platform key, the portal uses real Google services:
 - Google street map on every map, still locked to Colorado.
 - Address and place search on Map View: the pin, the county, nearby LIRMA households and the contractors serving that address, plus "Add as LIRMA household".
-- A real ZIP code and radius filter for any Colorado ZIP.
 - Address autocomplete in Add Household, giving the household its exact location.
 
 **Adding the key:** open **Settings → Google Maps Platform**, paste the key and choose **Save & connect**.
@@ -74,6 +79,7 @@ shared/styles.css          Design tokens and components (portal, phone, workflow
 shared/store.js            Builds records from sample data; every job operation (assign → approve)
 shared/map.js              Colorado-only map (Leaflet, with offline SVG fallback)
 shared/colorado-geo.js     Colorado state and county boundaries
+shared/colorado-zips.js    Colorado ZIP codes (centre point and county) for the ZIP filter
 shared/ui.js               Icons, badges, gauge, charts, timeline, floor plan, report document
 shared/portal.js           Portal shell, routing, tables (search, filters, sort, pagination)
 shared/portal-pages.js     Portal screens, modals and actions
